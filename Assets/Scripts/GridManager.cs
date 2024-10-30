@@ -21,8 +21,7 @@ public class GridManager : MonoBehaviour
         {
             for (int y = 0; y < Height; y++)
             {
-                var newTileObject = Instantiate(basicTilePrefab, new Vector3(x, y, 0), Quaternion.identity);
-                newTileObject.transform.SetParent(transform);
+                var newTileObject = Instantiate(basicTilePrefab, new Vector3(x, y, 0), Quaternion.identity, transform);
                 BasicTile tileComponent = newTileObject.GetComponent<BasicTile>();
                 tileComponent.Initialize(Random.ColorHSV()); // Random color
                 tiles[x, y] = tileComponent;
