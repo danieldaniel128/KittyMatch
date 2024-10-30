@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: e98e2d1c42b43be488360e024f317976
+guid: 816809c23993a7146bb29781a7c59760
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -69,7 +69,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 1024
+    maxTextureSize: 4096
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 1
@@ -108,7 +108,112 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: SpriteSheet KittyMatch_0
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 37
+        width: 555
+        height: 604
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 478821d50f5c45c428fc49b383c4018f
+      internalID: -1172587018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SpriteSheet KittyMatch_1
+      rect:
+        serializedVersion: 2
+        x: 643
+        y: 117
+        width: 678
+        height: 444
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3c6cd9232c8f7e34ab0779e3cf055f44
+      internalID: 1671029987
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SpriteSheet KittyMatch_2
+      rect:
+        serializedVersion: 2
+        x: 1371
+        y: 99
+        width: 648
+        height: 480
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2e9c915d07812f245a655739ae670e7e
+      internalID: -1652059503
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SpriteSheet KittyMatch_3
+      rect:
+        serializedVersion: 2
+        x: 2069
+        y: 109
+        width: 674
+        height: 460
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0131bc4ed1368d641a080751a0674c94
+      internalID: 878846626
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: SpriteSheet KittyMatch_4
+      rect:
+        serializedVersion: 2
+        x: 2793
+        y: 73
+        width: 522
+        height: 532
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 907957f2afeb14d429cb557b61dbf92e
+      internalID: -1527712757
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
@@ -119,7 +224,12 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      SpriteSheet KittyMatch_0: -1172587018
+      SpriteSheet KittyMatch_1: 1671029987
+      SpriteSheet KittyMatch_2: -1652059503
+      SpriteSheet KittyMatch_3: 878846626
+      SpriteSheet KittyMatch_4: -1527712757
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
