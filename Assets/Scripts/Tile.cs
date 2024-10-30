@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public abstract class Tile : MonoBehaviour
+public abstract class Tile : MonoBehaviour , IPointerDownHandler
 {
     public abstract void Activate();
 
@@ -16,4 +17,10 @@ public abstract class Tile : MonoBehaviour
     {
         Destroy(gameObject); // Destroy tile GameObject in Unity
     }
+
+    public virtual void OnPointerDown(PointerEventData eventData)
+    {
+        Debug.Log("tile clicked");
+    }
+
 }
