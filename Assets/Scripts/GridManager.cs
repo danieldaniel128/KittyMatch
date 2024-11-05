@@ -7,7 +7,7 @@ public class GridManager : MonoBehaviour
     public int Height;
     public GameObject basicTilePrefab;
     [SerializeField] private MatchHandler _matchHandler;
-
+    [SerializeField] private TileDataSO[] _tileDataSOs;
     private Tile[,] tiles;
 
     private void Start()
@@ -24,7 +24,13 @@ public class GridManager : MonoBehaviour
             {
                 var newTileObject = Instantiate(basicTilePrefab, new Vector3(x, y, 0), Quaternion.identity, transform);
                 BasicTile tileComponent = newTileObject.GetComponent<BasicTile>();
-                tileComponent.Initialize(Random.ColorHSV());
+
+                // Randomly select a TileDataSO for this tile
+                TileDataSO tileData = _tileDataSOs[Random.Range(0, _tileDataSOs.Length)];
+
+                // Initialize the tile with the properties from the selected TileDataSO
+                tileComponent.InitTile(tileData);
+
                 tileComponent.OnSelectedTile.AddListener(OnTileSelected); // Register listener
                 tiles[x, y] = tileComponent;
             }

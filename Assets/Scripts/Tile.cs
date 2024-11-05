@@ -10,19 +10,20 @@ public abstract class Tile : MonoBehaviour , IPointerDownHandler
     [SerializeField] private RectTransform m_RectTransform;
     [SerializeField] protected RawImage Icon;
     [SerializeField] Sprite _spriteIcon;
+    [SerializeField] TileDataSO _tileDataSO;
     private Vector2 _originalSize = new Vector2(40, 40);
     public UnityEvent<Tile> OnSelectedTile;
     public abstract void Activate();
-
+    [ContextMenu("Render new sprite")]
+    public virtual void InitTile(TileDataSO tileDataSO)
+    {
+        _tileDataSO = tileDataSO;
+        InitPicture(tileDataSO.TileIcon);
+    }
     public virtual bool CanMatchWith(Tile otherTile)
     {
         // Default match logic for all tiles (can be overridden)
         return false;
-    }
-    [ContextMenu("Render new sprite")]
-    private void Start()
-    {
-        InitPicture(_spriteIcon);
     }
     public void DestroyTile()
     {
