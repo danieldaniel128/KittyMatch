@@ -18,7 +18,8 @@ public abstract class Tile : MonoBehaviour , IPointerDownHandler
     public virtual void InitTile(TileDataSO tileDataSO)
     {
         _tileDataSO = tileDataSO;
-        InitPicture(tileDataSO.TileIcon);
+        if(tileDataSO.TileIcon != null)
+            InitPicture(tileDataSO.TileIcon);
     }
     public virtual bool CanMatchWith(Tile otherTile)
     {

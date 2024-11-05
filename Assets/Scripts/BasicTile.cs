@@ -7,10 +7,6 @@ public class BasicTile : Tile
 {
     public Color TileColor { get; private set; }
 
-    public void Initialize(Color color)
-    {
-        TileColor = color;
-    }
 
     public override void Activate()
     {

@@ -5,20 +5,19 @@ public class MatchHandler : MonoBehaviour
 {
     public List<List<Tile>> DetectMatches(GridManager gridManager)
     {
-        // Detect matches in grid rows and columns
-        var matches = new List<List<Tile>>();
-        // Implement match detection logic here
-        return matches;
-    }
+        List<List<Tile>> matches = new List<List<Tile>>(); // List to store all detected matches
 
-    public void HandleMatches(List<List<Tile>> matches)
-    {
-        foreach (var match in matches)
+        // Horizontal Match Detection
+        for (int y = 0; y < gridManager.Height; y++)
         {
-            foreach (var tile in match)
+            for (int x = 0; x < gridManager.Width; x++)
             {
-                tile.DestroyTile();
+
             }
         }
+
+
+        return matches; // Return all detected matches
     }
+
 }

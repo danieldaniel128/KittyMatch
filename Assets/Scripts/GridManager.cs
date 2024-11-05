@@ -1,5 +1,6 @@
 using UnityEngine;
 using DG.Tweening;
+using System.Collections.Generic;
 
 public class GridManager : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class GridManager : MonoBehaviour
     public GameObject basicTilePrefab;
     [SerializeField] private MatchHandler _matchHandler;
     [SerializeField] private TileDataSO[] _tileDataSOs;
+    [SerializeField] private TileDataSO _emptyTileDataSO;
     private Tile[,] tiles;
 
     private void Start()
@@ -95,7 +97,12 @@ public class GridManager : MonoBehaviour
         var matches = _matchHandler.DetectMatches(this);
         if (matches.Count > 0)
         {
-            _matchHandler.HandleMatches(matches);
+            foreach (List<Tile> match in matches)
+            {
+                //match effect
+                foreach (Tile tile in match)
+                    tile.InitTile(_emptyTileDataSO);
+            }
             FillEmptySpaces();
         }
         else
