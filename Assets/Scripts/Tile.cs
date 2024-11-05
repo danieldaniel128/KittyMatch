@@ -1,10 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public abstract class Tile : MonoBehaviour , IPointerDownHandler
 {
+    [SerializeField] private RectTransform m_RectTransform;
+    [SerializeField] protected RawImage Icon;
+    [SerializeField] Sprite _spriteIcon;
+    private Vector2 _originalSize = new Vector2(40, 40);
+    public UnityEvent<Tile> OnSelectedTile;
     public abstract void Activate();
 
     public virtual bool CanMatchWith(Tile otherTile)
@@ -12,7 +19,11 @@ public abstract class Tile : MonoBehaviour , IPointerDownHandler
         // Default match logic for all tiles (can be overridden)
         return false;
     }
-
+    [ContextMenu("Render new sprite")]
+    private void Start()
+    {
+        InitPicture(_spriteIcon);
+    }
     public void DestroyTile()
     {
         Destroy(gameObject); // Destroy tile GameObject in Unity
@@ -21,6 +32,33 @@ public abstract class Tile : MonoBehaviour , IPointerDownHandler
     public virtual void OnPointerDown(PointerEventData eventData)
     {
         Debug.Log("tile clicked");
+        OnSelectedTile?.Invoke(this);
     }
+    public void InitPicture(Sprite selectedSprite)
+    {
+        /// Set the texture of the RawImage to the sprite sheet texture
 
+        // Convert the sprite into a texture
+        Rect spriteRect = selectedSprite.textureRect;
+        Texture2D spriteTexture = new Texture2D((int)spriteRect.width, (int)spriteRect.height);
+        spriteTexture.SetPixels(selectedSprite.texture.GetPixels((int)spriteRect.x, (int)spriteRect.y, (int)spriteRect.width, (int)spriteRect.height));
+        spriteTexture.Apply();
+
+        // Assign the texture to the RawImage component
+        Icon.texture = spriteTexture;
+        // Assign the texture to the RawImage component
+        Icon.SetNativeSize();
+        float size_factor = 1;
+
+        if (Icon.texture.width > Icon.texture.height) //landscape
+        {
+            size_factor = _originalSize.x / Icon.texture.width;
+        }
+        else //portrait
+        {
+            size_factor = _originalSize.y / Icon.texture.height;
+        }
+
+        m_RectTransform.sizeDelta *= size_factor;
+    }
 }

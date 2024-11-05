@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class BasicTile : Tile
 {
@@ -23,5 +24,9 @@ public class BasicTile : Tile
             return otherBasicTile.TileColor == TileColor;
         }
         return false;
+    }
+    public override void OnPointerDown(PointerEventData eventData)
+    {
+        base.OnPointerDown(eventData);
     }
 }
