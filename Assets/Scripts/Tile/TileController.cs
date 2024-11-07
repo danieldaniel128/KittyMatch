@@ -7,11 +7,7 @@ using UnityEngine.UI;
 
 public abstract class Tile : MonoBehaviour , IPointerDownHandler
 {
-    [SerializeField] private RectTransform m_RectTransform;
-    [SerializeField] protected RawImage Icon;
-    [SerializeField] Sprite _spriteIcon;
     [SerializeField] TileDataSO _tileDataSO;
-    private Vector2 _originalSize = new Vector2(40, 40);
     public UnityEvent<Tile> OnSelectedTile;
     [SerializeField] GameObject _selectedTileVFX;
     public abstract void Activate();

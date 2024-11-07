@@ -1,0 +1,48 @@
+﻿using System;
+using UnityEngine.UI;
+using UnityEngine;
+
+namespace Assets.Scripts.Tile
+{
+    public class TileView
+    {
+        private RectTransform _tileRectTransform;
+        private RawImage _icon;
+        private Vector2 _originalSize;
+
+        public TileView(RawImage icon, RectTransform tileRT, Vector2 originalSize)
+        {
+            _icon = icon ?? throw new ArgumentNullException(nameof(icon));
+            _tileRectTransform = tileRT ?? throw new ArgumentNullException(nameof(tileRT));
+            _originalSize = originalSize;
+        }
+
+        public void SetNewTileIcon(Sprite spriteIcon)
+        {
+            if (spriteIcon == null)
+            {
+                Debug.LogWarning("Sprite icon is null, cannot set tile icon.");
+                return;
+            }
+
+            // Set the texture of the RawImage to the sprite sheet texture
+            Rect spriteRect = spriteIcon.textureRect;
+            Texture2D spriteTexture = new Texture2D((int)spriteRect.width, (int)spriteRect.height);
+            spriteTexture.SetPixels(spriteIcon.texture.GetPixels((int)spriteRect.x, (int)spriteRect.y, (int)spriteRect.width, (int)spriteRect.height));
+            spriteTexture.Apply();
+
+            _icon.texture = spriteTexture;
+            _icon.SetNativeSize();
+            AdjustSize(spriteTexture);
+        }
+
+        private void AdjustSize(Texture2D texture)
+        {
+            float sizeFactor = texture.width > texture.height
+                ? _originalSize.x / texture.width
+                : _originalSize.y / texture.height;
+
+            _tileRectTransform.sizeDelta = _originalSize * sizeFactor;
+        }
+    }
+}
