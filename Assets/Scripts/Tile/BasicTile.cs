@@ -7,7 +7,6 @@ public class BasicTile : Tile
 {
     public Color TileColor { get; private set; }
 
-
     public override void Activate()
     {
         // No special behavior for basic tiles
@@ -25,4 +24,6 @@ public class BasicTile : Tile
     {
         base.OnPointerDown(eventData);
     }
+    
+
 }

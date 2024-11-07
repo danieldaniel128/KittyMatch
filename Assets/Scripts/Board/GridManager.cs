@@ -61,9 +61,11 @@ public class GridManager : MonoBehaviour
         if (firstSelectedTile == null)
         {
             firstSelectedTile = selectedTile;
+            firstSelectedTile.ActivateSelectedVFX();
         }
         else
         {
+            selectedTile.ActivateSelectedVFX();
             // Calculate positions of both tiles
             Vector2Int pos1 = GetTilePosition(firstSelectedTile);
             Vector2Int pos2 = GetTilePosition(selectedTile);

@@ -13,6 +13,7 @@ public abstract class Tile : MonoBehaviour , IPointerDownHandler
     [SerializeField] TileDataSO _tileDataSO;
     private Vector2 _originalSize = new Vector2(40, 40);
     public UnityEvent<Tile> OnSelectedTile;
+    [SerializeField] GameObject _selectedTileVFX;
     public abstract void Activate();
     [ContextMenu("Render new sprite")]
     public virtual void InitTile(TileDataSO tileDataSO)
@@ -62,5 +63,13 @@ public abstract class Tile : MonoBehaviour , IPointerDownHandler
         }
 
         m_RectTransform.sizeDelta *= size_factor;
+    }
+    public void ActivateSelectedVFX()
+    {
+        _selectedTileVFX.SetActive(true);
+    }
+    public void DeActivateSelectedVFX()
+    {
+        _selectedTileVFX.SetActive(false);
     }
 }
