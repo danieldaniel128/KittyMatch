@@ -34,15 +34,23 @@ namespace Assets.Scripts.Tile
             _icon.texture = spriteTexture;
             _icon.SetNativeSize();
             AdjustSize(spriteTexture);
+            //
+
         }
 
         private void AdjustSize(Texture2D texture)
         {
-            float sizeFactor = texture.width > texture.height
-                ? _originalSize.x / texture.width
-                : _originalSize.y / texture.height;
+            float size_factor = 1;
+            if (_icon.texture.width > _icon.texture.height) //landscape
+            {
+                size_factor = _originalSize.x / _icon.texture.width;
+            }
+            else //portrait
+            {
+                size_factor = _originalSize.y / _icon.texture.height;
+            }
 
-            _tileRectTransform.sizeDelta = _originalSize * sizeFactor;
+            _tileRectTransform.sizeDelta *= size_factor;
         }
         //make an handler that holds every vfx. ask him to show the current vfx of the tile state.
         //public void ActivateSelectedVFX()

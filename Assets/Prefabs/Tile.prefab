@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2063512236872457785}
-  - component: {fileID: 7997151607543614737}
+  - component: {fileID: 5681748524387093936}
   m_Layer: 5
   m_Name: Tile
   m_TagString: Untagged
@@ -37,7 +37,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &7997151607543614737
+--- !u!114 &5681748524387093936
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -46,17 +46,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1082371493765510378}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 843d66195d0d5ea4e8f8663d37643d66, type: 3}
+  m_Script: {fileID: 11500000, guid: fc90de75b3509de4cb1ad895ed67b3b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_RectTransform: {fileID: 4372669537466412261}
-  Icon: {fileID: 1957168685581201382}
-  _spriteIcon: {fileID: 1671029987, guid: 816809c23993a7146bb29781a7c59760, type: 3}
-  _tileDataSO: {fileID: 0}
+  _icon: {fileID: 1957168685581201382}
+  _tileRectTransform: {fileID: 4372669537466412261}
   OnSelectedTile:
     m_PersistentCalls:
       m_Calls: []
-  _selectedTileVFX: {fileID: 1708881512354647229, guid: dc738232566c17345a6990e0fd69a473, type: 3}
 --- !u!1 &4804454879534989172
 GameObject:
   m_ObjectHideFlags: 0
@@ -215,7 +212,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 40, y: 0}
+  m_SizeDelta: {x: 678, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5582462924538695685
 CanvasRenderer:
