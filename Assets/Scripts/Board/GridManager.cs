@@ -73,7 +73,7 @@ public class GridManager : MonoBehaviour
             Vector2Int pos2 = GetTilePosition(selectedTile);
 
             // Call OnTileSwap with the selected positions
-            //OnTileSwap(pos1, pos2);
+            OnTileSwap(pos1, pos2);
 
             // Reset selection
             _firstSelectedTile = null;
@@ -96,27 +96,27 @@ public class GridManager : MonoBehaviour
         tile1.transform.DOMove(pos2WorldPosition, 0.3f); // Adjust duration as needed
         tile2.transform.DOMove(pos1WorldPosition, 0.3f);
     }
-    //public void OnTileSwap(Vector2Int pos1, Vector2Int pos2)
-    //{
-    //    SwapTiles(pos1, pos2);
+    public void OnTileSwap(Vector2Int pos1, Vector2Int pos2)
+    {
+        SwapTiles(pos1, pos2);
 
-    //    var matches = _matchHandler.DetectMatches(this);
-    //    if (matches.Count > 0)
-    //    {
-    //        foreach (List<Tile> match in matches)
-    //        {
-    //            //match effect
-    //            foreach (Tile tile in match)
-    //                tile.InitTile(_emptyTileDataSO);
-    //        }
-    //        FillEmptySpaces();
-    //    }
-    //    else
-    //    {
-    //        // No match, swap back
-    //        SwapTiles(pos1, pos2);
-    //    }
-    //}
+        var matches = _matchHandler.DetectMatches(_tiles);
+        if (matches.Count > 0)
+        {
+            foreach (Match match in matches)
+            {
+                //match effect
+                foreach (ITile tile in match.MatchTiles)
+                    (tile as TileController).Initialize(_emptyTileDataSO);
+            }
+            FillEmptySpaces();
+        }
+        else
+        {
+            // No match, swap back
+            SwapTiles(pos1, pos2);
+        }
+    }
     public void FillEmptySpaces()
     {
         // Logic to shift tiles down and spawn new ones at the top
