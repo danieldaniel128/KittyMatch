@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class MatchHandler : MonoBehaviour
 {
-    public List<Match> DetectMatches(ITile[,] board)
+    public List<Match> DetectMatches(List<ITile> board)
     {
        return new List<Match>();
     }

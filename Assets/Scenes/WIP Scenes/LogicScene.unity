@@ -1321,6 +1321,10 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5237832232755998099, guid: 3368a49c06e5823498d99422417e2bb6, type: 3}
+      propertyPath: _tilesHolder
+      value: 
+      objectReference: {fileID: 634686602}
+    - target: {fileID: 5237832232755998099, guid: 3368a49c06e5823498d99422417e2bb6, type: 3}
       propertyPath: _emptyTileDataSO
       value: 
       objectReference: {fileID: 11400000, guid: f7e4d9ac8349dfe40b60dd9cb7a0d8f9, type: 2}

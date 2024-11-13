@@ -11,7 +11,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private MatchHandler _matchHandler;
     [SerializeField] private TileDataSO[] _tileDataSOs;
     [SerializeField] private TileDataSO _emptyTileDataSO;
-    private ITile[,] _tiles;
+    private List<ITile> _tiles;
 
     private ITile _firstSelectedTile = null;
 
@@ -22,12 +22,13 @@ public class GridManager : MonoBehaviour
 
     private void InitializeGrid()
     {
-        _tiles = new TileController[Width, Height];
-        for (int x = 0; x < Width; x++)
+        _tiles = new List<ITile>();
+        for (int y = 0; y < Height; y++)
         {
-            for (int y = 0; y < Height; y++)
+            for (int x = 0; x < Width; x++)
             {
                 var newTileObject = Instantiate(basicTilePrefab, new Vector3(x, y, 0), Quaternion.identity, _tilesHolder);
+                newTileObject.name = $"Tile({x},{y})";
                 TileController tileComponent = newTileObject.GetComponent<TileController>();
 
                 // Randomly select a TileDataSO for this tile
@@ -35,29 +36,17 @@ public class GridManager : MonoBehaviour
 
                 // Initialize the tile with the properties from the selected TileDataSO
                 tileComponent.Initialize(tileData);
-
+                //set the event of OnSelectedTile.
                 tileComponent.OnSelectedTile.AddListener(OnTileSelected); // Register listener
-                _tiles[x, y] = tileComponent;
+                //set index for each created tile.
+                tileComponent.SetTileIndex(x, y);
+                _tiles.Add(tileComponent);
             }
         }
     }
 
-    public ITile GetTileAt(int x, int y) => _tiles[x, y];
-    public void SetTileAt(int x, int y, ITile tile) => _tiles[x, y] = tile;
-    private Vector2Int GetTilePosition(ITile tile)
-    {
-        for (int x = 0; x < Width; x++)
-        {
-            for (int y = 0; y < Height; y++)
-            {
-                if (_tiles[x, y] == tile)
-                {
-                    return new Vector2Int(x, y);
-                }
-            }
-        }
-        return Vector2Int.zero;
-    }
+    public ITile GetTileAt(int x, int y) { Vector2Int tileIndex = new Vector2Int(x, y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
+    public ITile GetTileAt(Vector2Int tileIndexSearch) { Vector2Int tileIndex = new Vector2Int(tileIndexSearch.x, tileIndexSearch.y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
     private void OnTileSelected(ITile selectedTile)
     {
         if (_firstSelectedTile == null)
@@ -69,33 +58,46 @@ public class GridManager : MonoBehaviour
         {
             //selectedTile.ActivateSelectedVFX();
             // Calculate positions of both tiles
-            Vector2Int pos1 = GetTilePosition(_firstSelectedTile);
-            Vector2Int pos2 = GetTilePosition(selectedTile);
+            Vector2Int pos1 = _firstSelectedTile.TileIndex;
+            Vector2Int pos2 = selectedTile.TileIndex;
 
-            // Call OnTileSwap with the selected positions
-            OnTileSwap(pos1, pos2);
+            if(CanSwapTiles(pos1,pos2))
+                // Call OnTileSwap with the selected positions
+                OnTileSwap(pos1, pos2);
 
             // Reset selection
             _firstSelectedTile = null;
         }
     }
-    //change to dotween.
-    public void SwapTiles(Vector2Int pos1, Vector2Int pos2)
+    bool CanSwapTiles(Vector2Int posTile1, Vector2Int posTile2)
     {
-        TileController tempTile = _tiles[pos1.x, pos1.y] as TileController;
-        _tiles[pos1.x, pos1.y] = _tiles[pos2.x, pos2.y];
-        _tiles[pos2.x, pos2.y] = tempTile;
+        Debug.Log("posTile1: " + posTile1);
+        Debug.Log("posTile2: " + posTile2);
+        return Vector2Int.Distance(posTile1,posTile2) == 1;
+    }
+    public void SwapTiles(Vector2Int tile1Index, Vector2Int tile2Index)
+    {
+        // Get tiles at the specified positions
+        TileController tile1 = GetTileAt(tile1Index.x, tile1Index.y) as TileController;
+        TileController tile2 = GetTileAt(tile2Index.x, tile2Index.y) as TileController;
 
-        TileController tile1 = _tiles[pos1.x, pos1.y] as TileController;
-        TileController tile2 = _tiles[pos2.x, pos2.y] as TileController;
-        // Animate the tiles' movement
+        // Animate the tiles' movement using DoTween
         Vector3 pos1WorldPosition = tile1.transform.position;
         Vector3 pos2WorldPosition = tile2.transform.position;
-
-        // Swap positions with animation
+        //move world pos of tiles dotween.
         tile1.transform.DOMove(pos2WorldPosition, 0.3f); // Adjust duration as needed
         tile2.transform.DOMove(pos1WorldPosition, 0.3f);
+
+        //tile1 has tile2 index
+        tile1.SetTileIndex(tile2Index);
+        //tile2 has tile1 index
+        tile2.SetTileIndex(tile1Index);
+        Debug.Log("tile1: " + tile1.TileIndex);
+        Debug.Log("tile2: "+ tile2.TileIndex);
     }
+
+
+
     public void OnTileSwap(Vector2Int pos1, Vector2Int pos2)
     {
         SwapTiles(pos1, pos2);
@@ -114,7 +116,8 @@ public class GridManager : MonoBehaviour
         else
         {
             // No match, swap back
-            SwapTiles(pos1, pos2);
+            //remove from comments only when it has logic, because now it swaps back always and it prevents from 
+            //SwapTiles(GetTileAt(pos1).TileIndex,GetTileAt(pos2).TileIndex);
         }
     }
     public void FillEmptySpaces()

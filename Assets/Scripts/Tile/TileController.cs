@@ -3,13 +3,17 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-public class TileController : MonoBehaviour, IPointerDownHandler,ITile
+public class TileController : MonoBehaviour, IPointerDownHandler, ITile
 {
     [SerializeField] RawImage _icon;
     [SerializeField] RectTransform _tileRectTransform;
     protected TileModel _tileModel;
     protected TileView _tileView;
     public UnityEvent<ITile> OnSelectedTile;
+    public int X { get; private set; }
+    public int Y { get; private set; }
+    [SerializeField] private Vector2Int _tileIndex;
+    public Vector2Int TileIndex { get => _tileIndex; private set { _tileIndex = value; X = _tileIndex.x; Y = _tileIndex.y; } }
 
     public void Initialize(TileDataSO tileDataSO)
     {
@@ -31,8 +35,20 @@ public class TileController : MonoBehaviour, IPointerDownHandler,ITile
         OnSelectedTile?.Invoke(this);
     }
 
+    public void SetTileIndex(int x, int y)
+    {
+        TileIndex = new Vector2Int(x,y);
+    }
+    public void SetTileIndex(Vector2Int newTileIndex)
+    {
+        TileIndex = newTileIndex;
+    }
 }
 public interface ITile
 {
-
+    int X { get; }
+    int Y { get; }
+    Vector2Int TileIndex { get; }
+    public void SetTileIndex(int x,int y);
+    public void SetTileIndex(Vector2Int newTileIndex);
 }
