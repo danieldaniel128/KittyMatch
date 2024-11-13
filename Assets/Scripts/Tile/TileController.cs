@@ -1,18 +1,22 @@
 ﻿using Assets.Scripts.Tile;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.EventSystems;
-public class TileController : MonoBehaviour, IPointerDownHandler
+using UnityEngine.UI;
+public class TileController : MonoBehaviour, IPointerDownHandler,ITile
 {
-    protected TileModel tileModel;
-    protected TileView tileView;
+    [SerializeField] RawImage _icon;
+    [SerializeField] RectTransform _tileRectTransform;
+    protected TileModel _tileModel;
+    protected TileView _tileView;
+    public UnityEvent<ITile> OnSelectedTile;
 
-    public void Initialize(TileModel model, TileView view)
+    public void Initialize(TileDataSO tileDataSO)
     {
-        tileModel = model;
-        tileView = view;
-
+        _tileModel = new TileModel(tileDataSO);
+        _tileView = new TileView(_icon, _tileRectTransform,new Vector2(40,40));//size should be from the parent. change later.
         // Initializing the view based on model's data
-        tileView.SetNewTileIcon(tileModel.TileData.TileIcon);
+        _tileView.SetNewTileIcon(_tileModel.TileData.TileIcon);
     }
 
     public  void OnPointerDown(PointerEventData eventData)
@@ -20,10 +24,14 @@ public class TileController : MonoBehaviour, IPointerDownHandler
         Debug.Log("Tile clicked");
 
         // Request model to process the selection toggle and return the new state
-        bool isSelected = tileModel.ToggleSelection();
+        bool isSelected = _tileModel.ToggleSelection();
 
         // Update view based on the processed data
-        
+        OnSelectedTile?.Invoke(this);
     }
+
+}
+public interface ITile
+{
 
 }
