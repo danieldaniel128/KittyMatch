@@ -52,6 +52,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _icon: {fileID: 1957168685581201382}
   _tileRectTransform: {fileID: 4372669537466412261}
+  _tileHolder: {fileID: 2630040991345682855}
   _tileDataSO: {fileID: 0}
   OnSelectedTile:
     m_PersistentCalls:

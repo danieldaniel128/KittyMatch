@@ -2,12 +2,14 @@ using UnityEngine;
 using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine.UI;
+using System.Linq;
 
 public class GridManager : MonoBehaviour
 {
     public int Width;
     public int Height;
     public GameObject basicTilePrefab;
+    [SerializeField] private Transform _overlappingParent;
     [SerializeField] private Transform _tilesHolder;
     [SerializeField] private MatchHandler _matchHandler;
     [SerializeField] private TileDataSO[] _tileDataSOs;
@@ -81,7 +83,7 @@ public class GridManager : MonoBehaviour
         //Debug.Log("posTile2: " + posTile2);
         return Vector2Int.Distance(posTile1,posTile2) == 1;
     }
-    public void SwapTiles(Vector2Int tile1Index, Vector2Int tile2Index)
+    public async void SwapTiles(Vector2Int tile1Index, Vector2Int tile2Index)
     {
         // Get tiles at the specified positions
         TileController tile1 = GetTileAt(tile1Index.x, tile1Index.y) as TileController;
@@ -90,9 +92,25 @@ public class GridManager : MonoBehaviour
         // Animate the tiles' movement using DoTween
         Vector3 pos1WorldPosition = tile1.transform.position;
         Vector3 pos2WorldPosition = tile2.transform.position;
+        Sequence sequence = DOTween.Sequence();
+        //set parent for overlapping for ui.
+        tile1.GetTileIconTransform().SetParent(_overlappingParent);
+        tile2.GetTileIconTransform().SetParent(_overlappingParent);
+
         //move world pos of tiles dotween.
-        tile1.transform.DOMove(pos2WorldPosition, 0.3f); // Adjust duration as needed
-        tile2.transform.DOMove(pos1WorldPosition, 0.3f);
+        sequence.Join(tile1.GetTileIconTransform().DOMove(pos2WorldPosition, 0.3f)); // Adjust duration as needed
+        sequence.Join(tile2.GetTileIconTransform().DOMove(pos1WorldPosition, 0.3f));
+        await sequence.Play().AsyncWaitForCompletion();
+
+        //change icons
+        RawImage tmpTileIcon = tile1.GetIcon();
+        tile1.ChangeIcon(tile2.GetIcon());
+        tile2.ChangeIcon(tmpTileIcon);
+        //change references of the tiles icon and data.
+        TileDataSO tmpTileDataSO = _tileDataSOs.FirstOrDefault(c=> c.TileType.Equals(tile1.GetModelTileType()));
+        tile1.Initialize(_tileDataSOs.FirstOrDefault(c => c.TileType.Equals(tile2.GetModelTileType())));
+        tile2.Initialize(tmpTileDataSO);
+
 
         //tile1 has tile2 index
         tile1.SetTileIndex(tile2Index);

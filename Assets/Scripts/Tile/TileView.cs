@@ -35,6 +35,7 @@ namespace Assets.Scripts.Tile
             _icon.SetNativeSize();
             AdjustSize(spriteTexture);
             //
+            Canvas.ForceUpdateCanvases();
 
         }
 
