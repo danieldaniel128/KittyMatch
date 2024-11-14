@@ -5,97 +5,110 @@ using UnityEngine;
 
 public class MatchHandler : MonoBehaviour
 {
-    public List<Match> DetectMatches(List<ITile> board, int boardHeight)
+    public List<Match> DetectMatches(TileController[,] board, int boardHeight)
     {
-        List<Match> allMatches = new List<Match>();
 
-        for (int y = 0; y < boardHeight; y++)
+        var matches = new List<Match>();
+        foreach (var tile in board)
         {
-            // Filter tiles that are in the current row
-            List<ITile> tilesToCheck = board.Where(tile => tile.Y == y).ToList();
+            var (h, v) = GetConnections(tile.X, tile.Y, board);
+            var match = new Match(tile, h, v);
 
-            // Find horizontal matches in the current row
-            var horizontalMatches = tilesToCheck
-                .GroupBy(tile => tile.TileIndex.y) // Group tiles by row (Y position)
-                .SelectMany(rowGroup =>
-                    rowGroup.GroupBy(tile => ((TileController)tile).GetModelTileType())) // Group by TileType
-                .ToList();
-
-            List<Match> rowMatches = new List<Match>(); // Holds all matches for this row
-
-            foreach (var tileGroup in horizontalMatches)
-            {
-                Match tilesSequence = new Match(new List<ITile>());
-
-                for (int i = 0; i < tileGroup.Count(); i++)
-                {
-                    ITile tile = tileGroup.ElementAt(i);
-                    // Skip groups with only one tile as they can't form matches
-                    if (tileGroup.Count() == 1)
-                    {
-                        //Debug.Log("type: " + tileGroup.Key + " tileIndex: " + tile.TileIndex);
-                        continue;
-                    }
-
-
-                    // Start a new sequence with the first tile
-                    if (tilesSequence.MatchTiles.Count == 0)
-                    {
-                        tilesSequence.MatchTiles.Add(tile);
-                        //Debug.Log("type: " + tileGroup.Key + " tileIndex: " + tile.TileIndex);
-                        continue;
-                    }
-
-                    // Check if the current tile is consecutive with the last tile in the sequence
-                    if (tile.X - 1 == tilesSequence.MatchTiles[tilesSequence.MatchTiles.Count-1].X)
-                    {
-                        tilesSequence.MatchTiles.Add(tile); // Add to the sequence
-                        //Debug.Log("type: " + tileGroup.Key + " tileIndex: " + tile.TileIndex);
-                    }
-                    else
-                    {
-                        // If sequence breaks and is a valid match, add to row matches
-                        //if (tilesSequence.MatchTiles.Count >= 3)
-                        //{
-                            rowMatches.Add(tilesSequence);
-                        //}
-                        // Clear sequence to start new potential match
-                        tilesSequence.MatchTiles.Clear();
-                        tilesSequence.MatchTiles.Add(tile);
-                    }
-                }
-
-                // After the loop, check if the last sequence in the row is a match
-                if (tilesSequence.MatchTiles.Count >= 3)
-                {
-                    rowMatches.Add(tilesSequence);
-                    string typeTile= (tilesSequence.MatchTiles.FirstOrDefault() as TileController).GetModelTileType();
-                    Debug.Log("type: " + typeTile);
-                    foreach (var tile in tilesSequence.MatchTiles)
-                        Debug.Log("tiletileIndex: " + tile.TileIndex);
-                }
-            }
-
-            // Add all row matches to the overall matches list
-            allMatches.AddRange(rowMatches);
+            if (match.Score > -1) matches.Add(match);
         }
-        foreach (Match match in allMatches) 
-        {
-            foreach (var item in match.MatchTiles)
-            {
-                ((TileController)item).GetComponent<CanvasGroup>().alpha = 0;
-            }
-        }
-        return allMatches; // Returns all matches found across all rows
+
+        return matches;
     }
 
-
-}
-public class Match//
-{
-    public List<ITile> MatchTiles { get; private set; }
-    public Match(List<ITile> matchedTiles)
+    public static (TileController[], TileController[]) GetConnections(int originX, int originY, TileController[,] tiles)
     {
-        MatchTiles = matchedTiles;
+        var origin = tiles[originX, originY];
+
+        var width = tiles.GetLength(0);
+        var height = tiles.GetLength(1);
+
+        var horizontalConnections = new List<TileController>();
+        var verticalConnections = new List<TileController>();
+
+        for (var x = originX - 1; x >= 0; x--)
+        {
+            var other = tiles[x, originY];
+
+            if (!other.GetModelTileType().Equals(origin.GetModelTileType())) break;
+
+            horizontalConnections.Add(other);
+        }
+
+        for (var x = originX + 1; x < width; x++)
+        {
+            var other = tiles[x, originY];
+
+            if (!other.GetModelTileType().Equals(origin.GetModelTileType())) break;
+
+            horizontalConnections.Add(other);
+        }
+
+        for (var y = originY - 1; y >= 0; y--)
+        {
+            var other = tiles[originX, y];
+
+            if (!other.GetModelTileType().Equals(origin.GetModelTileType())) break;
+
+            verticalConnections.Add(other);
+        }
+
+        for (var y = originY + 1; y < height; y++)
+        {
+            var other = tiles[originX, y];
+
+            if (!other.GetModelTileType().Equals(origin.GetModelTileType())) break;
+
+            verticalConnections.Add(other);
+        }
+
+        return (horizontalConnections.ToArray(), verticalConnections.ToArray());
+    }
+}
+public class Match
+{
+    public readonly string TileType;
+
+    public readonly int Score;
+
+    public readonly ITile[] Tiles;
+
+    public Match(ITile origin, ITile[] horizontal, ITile[] vertical)
+    {
+        TileType = ((TileController)origin).GetModelTileType();
+
+        if (horizontal.Length >= 2 && vertical.Length >= 2)
+        {
+            Tiles = new ITile[horizontal.Length + vertical.Length + 1];
+
+            Tiles[0] = origin;
+
+            horizontal.CopyTo(Tiles, 1);
+
+            vertical.CopyTo(Tiles, horizontal.Length + 1);
+        }
+        else if (horizontal.Length >= 2)
+        {
+            Tiles = new ITile[horizontal.Length + 1];
+
+            Tiles[0] = origin;
+
+            horizontal.CopyTo(Tiles, 1);
+        }
+        else if (vertical.Length >= 2)
+        {
+            Tiles = new ITile[vertical.Length + 1];
+
+            Tiles[0] = origin;
+
+            vertical.CopyTo(Tiles, 1);
+        }
+        else Tiles = null;
+
+        Score = Tiles?.Length ?? -1;
     }
 }

@@ -13,6 +13,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private TileDataSO[] _tileDataSOs;
     [SerializeField] private TileDataSO _emptyTileDataSO;
     private List<ITile> _tiles;
+    private TileController[,] _tileGrid;
 
     private ITile _firstSelectedTile = null;
 
@@ -24,6 +25,7 @@ public class GridManager : MonoBehaviour
     private void InitializeGrid()
     {
         _tiles = new List<ITile>();
+        _tileGrid = new TileController[Width, Height];
         for (int y = 0; y < Height; y++)
         {
             for (int x = 0; x < Width; x++)
@@ -41,7 +43,10 @@ public class GridManager : MonoBehaviour
                 tileComponent.OnSelectedTile.AddListener(OnTileSelected); // Register listener
                 //set index for each created tile.
                 tileComponent.SetTileIndex(x, y);
+                //add to list of tiles.
                 _tiles.Add(tileComponent);
+                //add to grid of tiles.
+                _tileGrid[x, y] = tileComponent;
             }
         }
     }
@@ -103,14 +108,17 @@ public class GridManager : MonoBehaviour
     {
         SwapTiles(pos1, pos2);
 
-        var matches = _matchHandler.DetectMatches(_tiles,5);
+        var matches = _matchHandler.DetectMatches(_tileGrid,5);
         if (matches.Count > 0)
         {
             foreach (Match match in matches)
             {
                 //match effect
-                foreach (ITile tile in match.MatchTiles)
+                foreach (ITile tile in match.Tiles)
+                { 
                     (tile as TileController).Initialize(_emptyTileDataSO);
+                    (tile as TileController).GetComponent<CanvasGroup>().alpha = 0;
+                }
             }
             FillEmptySpaces();
         }
