@@ -3,6 +3,7 @@ using DG.Tweening;
 using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Linq;
+using System.Threading.Tasks;
 
 public class GridManager : MonoBehaviour
 {
@@ -19,6 +20,7 @@ public class GridManager : MonoBehaviour
 
     private TileController _firstSelectedTile = null;
 
+    [SerializeField] bool _isSwapping;
     private void Start()
     {
         InitializeGrid();
@@ -57,19 +59,23 @@ public class GridManager : MonoBehaviour
     public TileController GetTileAt(Vector2Int tileIndexSearch) { Vector2Int tileIndex = new Vector2Int(tileIndexSearch.x, tileIndexSearch.y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
     private void OnTileSelected(TileController selectedTile)
     {
+        //cant select while
+        if (_isSwapping)
+            return;
         if (_firstSelectedTile == null)
         {
             _firstSelectedTile = selectedTile;
-            //_firstSelectedTile.ActivateSelectedVFX();
+            //visual to selected effect
+            _firstSelectedTile.GetIcon().transform.DOScale(Vector3.one * 1.1f, 0.1f);
         }
         else
         {
-            //selectedTile.ActivateSelectedVFX();
             // Calculate positions of both tiles
             Vector2Int pos1 = _firstSelectedTile.TileIndex;
             Vector2Int pos2 = selectedTile.TileIndex;
-
-            if(CanSwapTiles(pos1,pos2))
+            //visual to selected effect
+            selectedTile.GetIcon().transform.DOScale(Vector3.one * 1.1f, 0.1f);
+            if (CanSwapTiles(pos1,pos2))
                 // Call OnTileSwap with the selected positions
                 OnTileSwap(pos1, pos2);
 
@@ -83,7 +89,7 @@ public class GridManager : MonoBehaviour
         //Debug.Log("posTile2: " + posTile2);
         return Vector2Int.Distance(posTile1,posTile2) == 1;
     }
-    public async void SwapTiles(Vector2Int tile1Index, Vector2Int tile2Index)
+    public async Task SwapTiles(Vector2Int tile1Index, Vector2Int tile2Index)
     {
         // Get tiles at the specified positions
         TileController tile1 = GetTileAt(tile1Index.x, tile1Index.y) as TileController;
@@ -94,14 +100,13 @@ public class GridManager : MonoBehaviour
         Vector3 pos2WorldPosition = tile2.transform.position;
         Sequence sequence = DOTween.Sequence();
         //set parent for overlapping for ui.
-        tile1.GetTileIconTransform().SetParent(_overlappingParent);
-        tile2.GetTileIconTransform().SetParent(_overlappingParent);
+        tile1.GetIcon().transform.SetParent(_overlappingParent);
+        tile2.GetIcon().transform.SetParent(_overlappingParent);
 
         //move world pos of tiles dotween.
-        sequence.Join(tile1.GetTileIconTransform().DOMove(pos2WorldPosition, 0.3f)); // Adjust duration as needed
-        sequence.Join(tile2.GetTileIconTransform().DOMove(pos1WorldPosition, 0.3f));
+        sequence.Join(tile1.GetIcon().transform.DOMove(pos2WorldPosition, 0.5f)); // Adjust duration as needed
+        sequence.Join(tile2.GetIcon().transform.DOMove(pos1WorldPosition, 0.5f));
         await sequence.Play().AsyncWaitForCompletion();
-
         //change icons
         RawImage tmpTileIcon = tile1.GetIcon();
         tile1.ChangeIcon(tile2.GetIcon());
@@ -110,22 +115,18 @@ public class GridManager : MonoBehaviour
         TileDataSO tmpTileDataSO = _tileDataSOs.FirstOrDefault(c=> c.TileType.Equals(tile1.GetModelTileType()));
         tile1.Initialize(_tileDataSOs.FirstOrDefault(c => c.TileType.Equals(tile2.GetModelTileType())));
         tile2.Initialize(tmpTileDataSO);
-
-
-        //tile1 has tile2 index
-        tile1.SetTileIndex(tile2Index);
-        //tile2 has tile1 index
-        tile2.SetTileIndex(tile1Index);
-        //Debug.Log("tile1: " + tile1.TileIndex);
-        //Debug.Log("tile2: "+ tile2.TileIndex);
+        //visual back to deselect.
+        tile1.GetIcon().transform.DOScale(Vector3.one, 0.1f);
+        tile2.GetIcon().transform.DOScale(Vector3.one, 0.1f);
     }
 
 
 
-    public void OnTileSwap(Vector2Int pos1, Vector2Int pos2)
+    public async void OnTileSwap(Vector2Int pos1, Vector2Int pos2)
     {
-        SwapTiles(pos1, pos2);
-
+        _isSwapping = true;
+        await SwapTiles(pos1, pos2);
+        _isSwapping = false;
         var matches = _matchHandler.DetectMatches(_tiles,5);
         if (matches.Count > 0)
         {
