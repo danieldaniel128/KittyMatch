@@ -13,6 +13,7 @@ public class GridManager : MonoBehaviour
     public GameObject basicTilePrefab;
     [SerializeField] private Transform _overlappingParent;
     [SerializeField] private Transform _tilesHolder;
+    [SerializeField] private TilePool _tilesPool;
     [SerializeField] private MatchHandler _matchHandler;
     [SerializeField] private TileDataSO[] _tileDataSOs;
     [SerializeField] private TileDataSO _emptyTileDataSO;
@@ -59,6 +60,10 @@ public class GridManager : MonoBehaviour
 
     public TileController GetTileAt(int x, int y) { Vector2Int tileIndex = new Vector2Int(x, y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
     public TileController GetTileAt(Vector2Int tileIndexSearch) { Vector2Int tileIndex = new Vector2Int(tileIndexSearch.x, tileIndexSearch.y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
+    public void ReleaseToTileIconToPool(TileController tile)
+    {
+        _tilesPool.ReturnToPool(tile.GetIcon());
+    }
     private void OnTileSelected(TileController selectedTile)
     {
         //cant select while

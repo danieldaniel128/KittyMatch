@@ -259,11 +259,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1313341722}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1b6a6a94411dcd24085f5b05bf523c2b, type: 3}
+  m_Script: {fileID: 11500000, guid: 08aa6d9ac43077a448847e9464b58d83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initPoolSize: 0
-  objectToPool: {fileID: 0}
+  initPoolSize: 7
+  objectToPool: {fileID: 2336297191031395748, guid: 71353caab70d57a4b8817a319dcf7c40, type: 3}
 --- !u!224 &1370074524 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2615288399659995814, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}

@@ -64,6 +64,7 @@ public class TileController : MonoBehaviour, IPointerDownHandler, ITile
         TileIndex = newTileIndex;
     }
     
+
 }
 public interface ITile
 {
@@ -72,4 +73,5 @@ public interface ITile
     Vector2Int TileIndex { get; }
     public void SetTileIndex(int x,int y);
     public void SetTileIndex(Vector2Int newTileIndex);
+
 }

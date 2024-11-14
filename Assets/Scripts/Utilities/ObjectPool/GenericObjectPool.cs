@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ObjectPool<T> : MonoBehaviour where T : MonoBehaviour
+public class GenericObjectPool<T> : MonoBehaviour where T : MonoBehaviour
 {
     // Initial number of cloned objects
     [SerializeField] private uint initPoolSize;
