@@ -202,6 +202,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 846ba61821a00544fbe507abbb97707f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &929492337 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5384136819256395195, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
+  m_PrefabInstance: {fileID: 5732612629943963025}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91860e81b4f0b4b44bee128fe0007254, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &1370074524 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 2615288399659995814, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
@@ -274,6 +285,10 @@ PrefabInstance:
     - target: {fileID: 6476815885713913970, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
       propertyPath: m_Camera
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6476815885713913970, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
+      propertyPath: m_RenderMode
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6559527688911923138, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
       propertyPath: m_Name
@@ -451,7 +466,7 @@ PrefabInstance:
     - target: {fileID: 7853501285498885183, guid: 1d79139a4f61c9141bf1c1c48e901c30, type: 3}
       propertyPath: _gridManager
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 929492337}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -509,13 +524,8 @@ PrefabInstance:
       propertyPath: m_Name
       value: Cameras
       objectReference: {fileID: 0}
-    - target: {fileID: 6361461779567146310, guid: c89a2ef44a7c5e44a84931b24235b21d, type: 3}
-      propertyPath: m_IsActive
-      value: 1
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects:
-    - {fileID: 5378156366137595313, guid: c89a2ef44a7c5e44a84931b24235b21d, type: 3}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: c89a2ef44a7c5e44a84931b24235b21d, type: 3}
