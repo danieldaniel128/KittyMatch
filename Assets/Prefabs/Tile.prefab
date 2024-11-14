@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2063512236872457785}
   - component: {fileID: 5681748524387093936}
+  - component: {fileID: 5023663542764696445}
   m_Layer: 5
   m_Name: Tile
   m_TagString: Untagged
@@ -55,6 +56,18 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   _tileIndex: {x: 0, y: 0}
+--- !u!225 &5023663542764696445
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1082371493765510378}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &4804454879534989172
 GameObject:
   m_ObjectHideFlags: 0

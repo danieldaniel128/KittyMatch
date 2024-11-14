@@ -27,5 +27,9 @@ namespace Assets.Scripts.Tile
             IsSelected = false;
             // Additional reset logic if needed
         }
+        public string GetTileType()
+        {
+            return TileData.TileType;
+        }
     }
 }

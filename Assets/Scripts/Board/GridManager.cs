@@ -1,6 +1,7 @@
 using UnityEngine;
 using DG.Tweening;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class GridManager : MonoBehaviour
 {
@@ -71,8 +72,8 @@ public class GridManager : MonoBehaviour
     }
     bool CanSwapTiles(Vector2Int posTile1, Vector2Int posTile2)
     {
-        Debug.Log("posTile1: " + posTile1);
-        Debug.Log("posTile2: " + posTile2);
+        //Debug.Log("posTile1: " + posTile1);
+        //Debug.Log("posTile2: " + posTile2);
         return Vector2Int.Distance(posTile1,posTile2) == 1;
     }
     public void SwapTiles(Vector2Int tile1Index, Vector2Int tile2Index)
@@ -92,8 +93,8 @@ public class GridManager : MonoBehaviour
         tile1.SetTileIndex(tile2Index);
         //tile2 has tile1 index
         tile2.SetTileIndex(tile1Index);
-        Debug.Log("tile1: " + tile1.TileIndex);
-        Debug.Log("tile2: "+ tile2.TileIndex);
+        //Debug.Log("tile1: " + tile1.TileIndex);
+        //Debug.Log("tile2: "+ tile2.TileIndex);
     }
 
 
@@ -102,7 +103,7 @@ public class GridManager : MonoBehaviour
     {
         SwapTiles(pos1, pos2);
 
-        var matches = _matchHandler.DetectMatches(_tiles);
+        var matches = _matchHandler.DetectMatches(_tiles,5);
         if (matches.Count > 0)
         {
             foreach (Match match in matches)
