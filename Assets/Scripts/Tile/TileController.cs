@@ -10,7 +10,7 @@ public class TileController : MonoBehaviour, IPointerDownHandler, ITile
     [SerializeField] TileDataSO _tileDataSO;
     protected TileModel _tileModel;
     protected TileView _tileView;
-    public UnityEvent<ITile> OnSelectedTile;
+    public UnityEvent<TileController> OnSelectedTile;
     public int X { get; private set; }
     public int Y { get; private set; }
     [SerializeField] private Vector2Int _tileIndex;

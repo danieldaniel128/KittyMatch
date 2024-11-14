@@ -12,10 +12,10 @@ public class GridManager : MonoBehaviour
     [SerializeField] private MatchHandler _matchHandler;
     [SerializeField] private TileDataSO[] _tileDataSOs;
     [SerializeField] private TileDataSO _emptyTileDataSO;
-    private List<ITile> _tiles;
+    private List<TileController> _tiles;
     private TileController[,] _tileGrid;
 
-    private ITile _firstSelectedTile = null;
+    private TileController _firstSelectedTile = null;
 
     private void Start()
     {
@@ -24,7 +24,7 @@ public class GridManager : MonoBehaviour
 
     private void InitializeGrid()
     {
-        _tiles = new List<ITile>();
+        _tiles = new List<TileController>();
         _tileGrid = new TileController[Width, Height];
         for (int y = 0; y < Height; y++)
         {
@@ -51,9 +51,9 @@ public class GridManager : MonoBehaviour
         }
     }
 
-    public ITile GetTileAt(int x, int y) { Vector2Int tileIndex = new Vector2Int(x, y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
-    public ITile GetTileAt(Vector2Int tileIndexSearch) { Vector2Int tileIndex = new Vector2Int(tileIndexSearch.x, tileIndexSearch.y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
-    private void OnTileSelected(ITile selectedTile)
+    public TileController GetTileAt(int x, int y) { Vector2Int tileIndex = new Vector2Int(x, y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
+    public TileController GetTileAt(Vector2Int tileIndexSearch) { Vector2Int tileIndex = new Vector2Int(tileIndexSearch.x, tileIndexSearch.y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
+    private void OnTileSelected(TileController selectedTile)
     {
         if (_firstSelectedTile == null)
         {
@@ -108,7 +108,7 @@ public class GridManager : MonoBehaviour
     {
         SwapTiles(pos1, pos2);
 
-        var matches = _matchHandler.DetectMatches(_tileGrid,5);
+        var matches = _matchHandler.DetectMatches(_tiles,5);
         if (matches.Count > 0)
         {
             foreach (Match match in matches)
