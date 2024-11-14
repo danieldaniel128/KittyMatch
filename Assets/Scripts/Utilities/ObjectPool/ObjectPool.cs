@@ -1,72 +1,69 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ObjectPool : MonoBehaviour
+public class ObjectPool<T> : MonoBehaviour where T : MonoBehaviour
 {
-    // initial number of cloned objects
+    // Initial number of cloned objects
     [SerializeField] private uint initPoolSize;
     public uint InitPoolSize => initPoolSize;
 
-    // PooledObject prefab
-    [SerializeField] private PooledObject objectToPool;
+    // Prefab of the object to pool
+    [SerializeField] private T objectToPool;
 
-    // store the pooled objects in stack
-    private Stack<PooledObject> stack;
+    // Stack to store the pooled objects
+    private Stack<T> stack;
 
     private void Start()
     {
         SetupPool();
     }
 
-    // creates the pool (invoke when the lag is not noticeable)
+    // Creates the pool (invoke when the lag is not noticeable)
     private void SetupPool()
     {
-        // missing objectToPool Prefab field
+        // Check if the objectToPool field is missing
         if (objectToPool == null)
         {
+            Debug.LogError("ObjectToPool prefab is not assigned.");
             return;
         }
 
-        stack = new Stack<PooledObject>();
+        stack = new Stack<T>();
 
-        // populate the pool
-        PooledObject instance = null;
-
+        // Populate the pool
         for (int i = 0; i < initPoolSize; i++)
         {
-            instance = Instantiate(objectToPool);
-            instance.Pool = this;
+            T instance = Instantiate(objectToPool);
             instance.gameObject.SetActive(false);
             stack.Push(instance);
         }
     }
 
-    // returns the first active GameObject from the pool
-    public PooledObject GetPooledObject()
+    // Returns an active object from the pool
+    public T GetPooledObject()
     {
-        // missing objectToPool field
+        // Check if the objectToPool field is missing
         if (objectToPool == null)
         {
+            Debug.LogError("ObjectToPool prefab is not assigned.");
             return null;
         }
 
-        // if the pool is not large enough, instantiate extra PooledObjects
+        // If the pool is empty, instantiate a new object
         if (stack.Count == 0)
         {
-            PooledObject newInstance = Instantiate(objectToPool);
-            newInstance.Pool = this;
+            T newInstance = Instantiate(objectToPool);
             return newInstance;
         }
 
-        // otherwise, just grab the next one from the list
-        PooledObject nextInstance = stack.Pop();
+        // Otherwise, retrieve an object from the pool
+        T nextInstance = stack.Pop();
         nextInstance.gameObject.SetActive(true);
         return nextInstance;
     }
 
-    // returns the GameObject to the pool
-    public void ReturnToPool(PooledObject pooledObject)
+    // Returns the object to the pool
+    public void ReturnToPool(T pooledObject)
     {
         stack.Push(pooledObject);
         pooledObject.gameObject.SetActive(false);
