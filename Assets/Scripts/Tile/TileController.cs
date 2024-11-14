@@ -21,7 +21,7 @@ public class TileController : MonoBehaviour, IPointerDownHandler, ITile
         _tileDataSO = tileDataSO;
         _tileModel = new TileModel(tileDataSO);
         //make static method of creating instance that does the set icon too.
-        _tileView = new TileView(_icon, _tileRectTransform,new Vector2(40,40));//size should be from the parent. change later.
+        _tileView = new TileView(_icon, _tileRectTransform,_tileRectTransform.sizeDelta);//size should be from the parent. change later.
         // Initializing the view based on model's data
         _tileView.SetNewTileIcon(_tileModel.TileData.TileIcon);
     }
