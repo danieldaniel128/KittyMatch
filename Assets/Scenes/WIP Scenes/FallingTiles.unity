@@ -1082,10 +1082,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Utilities
       objectReference: {fileID: 0}
-    - target: {fileID: 5823630704263495893, guid: 1d79139a4f61c9141bf1c1c48e901c30, type: 3}
-      propertyPath: m_Enabled
-      value: 1
-      objectReference: {fileID: 0}
     - target: {fileID: 6363741037180778859, guid: 1d79139a4f61c9141bf1c1c48e901c30, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -1198,7 +1194,9 @@ PrefabInstance:
       propertyPath: m_Name
       value: Cameras
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5236794787834237263, guid: c89a2ef44a7c5e44a84931b24235b21d, type: 3}
+    - {fileID: 6095888917965905874, guid: c89a2ef44a7c5e44a84931b24235b21d, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

@@ -1,3 +1,3 @@
-﻿using UnityEngine.UI;
+﻿using UnityEngine;
 
-public class TilePool : GenericObjectPool<RawImage> { }
+public class TilePool : GenericObjectPool<PooledObject> { }
