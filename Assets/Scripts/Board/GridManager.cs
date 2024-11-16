@@ -37,7 +37,7 @@ public class GridManager : MonoBehaviour
         {
             for (int x = 0; x < Width; x++)
             {
-                var newTileObject = Instantiate(basicTilePrefab, new Vector3(x, y, 0), Quaternion.identity, _tilesHolder);
+                var newTileObject = Instantiate(basicTilePrefab, new Vector3(x, y, _tilesHolder.position.z), Quaternion.identity, _tilesHolder);
                 newTileObject.name = $"Tile({x},{y})";
                 TileController tileComponent = newTileObject.GetComponent<TileController>();
 
