@@ -279,6 +279,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2336297191031395748, guid: 71353caab70d57a4b8817a319dcf7c40, type: 3}
+      propertyPath: m_Texture
+      value: 
+      objectReference: {fileID: 2800000, guid: 73097c0ff28fc504bb8c33a99f355bb3, type: 3}
     - target: {fileID: 5116077586362356749, guid: 71353caab70d57a4b8817a319dcf7c40, type: 3}
       propertyPath: m_Name
       value: TileIcon

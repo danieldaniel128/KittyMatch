@@ -5,7 +5,7 @@ public class TileDataSO : ScriptableObject
 {
     public string TileName;
     public string TileType;
-    public Sprite TileIcon;
+    public Texture2D TileIcon;
     public bool IsRenderered;
 
     // Additional properties for special effects or scoring could be added here

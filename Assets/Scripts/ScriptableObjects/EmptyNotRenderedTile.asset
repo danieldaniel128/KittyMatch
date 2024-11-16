@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 709c5b7c34b6c0a4cac4ede7d3fd88bd, type: 3}
-  m_Name: BasicTile1
+  m_Name: EmptyNotRenderedTile
   m_EditorClassIdentifier: 
-  TileName: Bell
-  TileType: Bell
-  TileIcon: {fileID: 2800000, guid: af0d39ccb2271454293e1101dc8ec2fa, type: 3}
-  IsRenderered: 1
+  TileName: EmptyNotRendered
+  TileType: EmptyNotRendered
+  TileIcon: {fileID: 0}
+  IsRenderered: 0

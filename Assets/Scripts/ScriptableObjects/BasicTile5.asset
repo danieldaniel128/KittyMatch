@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TileName: 'a ball of yarn '
   TileType: YarnBall
-  TileIcon: {fileID: -1527712757, guid: 816809c23993a7146bb29781a7c59760, type: 3}
+  TileIcon: {fileID: 2800000, guid: 73097c0ff28fc504bb8c33a99f355bb3, type: 3}
   IsRenderered: 1
