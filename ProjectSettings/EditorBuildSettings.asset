@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Scenes/TempMenu.unity
+    guid: 66442889d82c610478acec0c674d3207
+  - enabled: 1
     path: Assets/Scenes/WIP Scenes/FallingTiles.unity
     guid: f31ae54ca62db3d488da4abf9e2d0c36
   m_configObjects: {}
