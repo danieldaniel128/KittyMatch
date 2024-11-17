@@ -40,9 +40,13 @@ public class GridManager : MonoBehaviour
                 var newTileObject = Instantiate(basicTilePrefab, new Vector3(x, y, _tilesHolder.position.z), Quaternion.identity, _tilesHolder);
                 newTileObject.name = $"Tile({x},{y})";
                 TileController tileComponent = newTileObject.GetComponent<TileController>();
-
-                // Randomly select a TileDataSO for this tile
-                TileDataSO tileData = _tileDataSOs[Random.Range(0, _tileDataSOs.Length)];
+                TileDataSO tileData;
+                do
+                {
+                    // Randomly select a TileDataSO for this tile
+                    tileData = _tileDataSOs[Random.Range(0, _tileDataSOs.Length)];
+                }
+                while (WouldCauseMatch(x, y, tileData));
 
                 // Initialize the tile with the properties from the selected TileDataSO
                 tileComponent.Initialize(tileData);
@@ -57,7 +61,29 @@ public class GridManager : MonoBehaviour
             }
         }
     }
+    /// <summary>
+    /// Checks if placing a tile at a given position would create a match.
+    /// </summary>
+    private bool WouldCauseMatch(int x, int y, TileDataSO tileData)
+    {
+        // Check for horizontal match
+        if (x >= 2 &&
+            _tileGrid[x - 1, y].GetModelTileType().Equals(tileData.TileType) &&
+            _tileGrid[x - 2, y].GetModelTileType().Equals(tileData.TileType))
+        {
+            return true;
+        }
 
+        // Check for vertical match
+        if (y >= 2 &&
+            _tileGrid[x, y - 1].GetModelTileType().Equals(tileData.TileType) &&
+            _tileGrid[x, y - 2].GetModelTileType().Equals(tileData.TileType))
+        {
+            return true;
+        }
+
+        return false;
+    }
     public TileController GetTileAt(int x, int y) { Vector2Int tileIndex = new Vector2Int(x, y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
     public TileController GetTileAt(Vector2Int tileIndexSearch) { Vector2Int tileIndex = new Vector2Int(tileIndexSearch.x, tileIndexSearch.y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
     public void ReleaseToTileIconToPool(TileController tile)
@@ -141,7 +167,7 @@ public class GridManager : MonoBehaviour
         _isSwapping = true;
         await SwapTiles(pos1, pos2);
         _isSwapping = false;
-        var matches = _matchHandler.DetectMatches(_tiles,5);
+        var matches = _matchHandler.DetectMatches(_tiles,Height);
         if (matches.Count > 0)
         {
             foreach (Match match in matches)
