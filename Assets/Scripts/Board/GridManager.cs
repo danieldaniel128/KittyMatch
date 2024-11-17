@@ -169,7 +169,11 @@ public class GridManager : MonoBehaviour
         _isSwapping = false;
         var matches = _matchHandler.DetectMatches(_tiles,Height);
         if (matches.Count == 0)
+        {
+            _isSwapping = true;
             await SwapTiles(pos1, pos2);
+            _isSwapping = false;
+        }
         do
         {
             foreach (Match match in matches)
@@ -188,6 +192,7 @@ public class GridManager : MonoBehaviour
         while (matches.Count > 0);
         
     }
+
     public async Task FillEmptySpaces()
     {
         List<TileController> fellTiles = new List<TileController>();
