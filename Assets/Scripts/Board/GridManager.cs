@@ -24,6 +24,7 @@ public class GridManager : MonoBehaviour
 
 
     [SerializeField] bool _isSwapping;
+    [SerializeField] bool _isMatching;
     private void Start()
     {
         InitializeGrid();
@@ -93,7 +94,7 @@ public class GridManager : MonoBehaviour
     private void OnTileSelected(TileController selectedTile)
     {
         //cant select while
-        if (_isSwapping || selectedTile.GetModelTileType().Equals(_emptyTileDataSO.TileType))
+        if (_isSwapping || _isMatching || selectedTile.GetModelTileType().Equals(_emptyTileDataSO.TileType))
             return;
         if (_firstSelectedTile == null)
         {
@@ -176,6 +177,7 @@ public class GridManager : MonoBehaviour
         }
         do
         {
+            _isMatching = true;
             foreach (Match match in matches)
             {
                 //match effect
@@ -190,7 +192,7 @@ public class GridManager : MonoBehaviour
             matches = _matchHandler.DetectMatches(_tiles, Height);
         }
         while (matches.Count > 0);
-        
+        _isMatching = false;
     }
 
     public async Task FillEmptySpaces()
