@@ -205,12 +205,15 @@ public class GridManager : MonoBehaviour
                         TileController fallingTile = GetTileAt(x, aboveY);
                         if (!fallingTile.GetModelTileType().Equals(_emptyTileDataSO.TileType))
                         {
+                            // Calculate the duration based on the distance
+                            float distance = y - aboveY;
+                            float fallDuration = Mathf.Lerp(0.3f, 0.6f, distance / y); // Adjust range (0.6 to 0.8) as needed
+
                             // Move the tile down
                             Vector3 emptyTileWorldPos = emptyTile.transform.position;
-                            Vector3 fallingTileWorldPos = fallingTile.transform.position;
 
                             fallingTile.GetIconTransform().SetParent(_overlappingParent);
-                            sequence.Join(fallingTile.GetIconTransform().transform.DOMove(emptyTileWorldPos, 0.7f));
+                            sequence.Join(fallingTile.GetIconTransform().transform.DOMove(emptyTileWorldPos, fallDuration).SetEase(Ease.InCubic));
 
                             // Update tile references
                             emptyTile.ChangeIcon(fallingTile.GetIconTransform());
