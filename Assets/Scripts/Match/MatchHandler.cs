@@ -23,7 +23,7 @@ public class MatchHandler : MonoBehaviour
     {
         // Find the origin tile in the list based on its X and Y coordinates.
         var origin = tiles.FirstOrDefault(tile => tile.X == originX && tile.Y == originY);
-        if (origin == null) return (new TileController[0], new TileController[0]);
+        if (origin == null || origin.GetModelTileType().Equals("EmptyRendered")) return (new TileController[0], new TileController[0]);
 
         var horizontalConnections = new List<TileController>();
         var verticalConnections = new List<TileController>();

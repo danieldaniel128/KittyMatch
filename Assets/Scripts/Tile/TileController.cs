@@ -76,6 +76,8 @@ public class TileController : MonoBehaviour, IPointerDownHandler, ITile
     public void ChangeIcon(Transform newIcon)
     {
         _tileView.ChangeIcon(newIcon);
+        if(newIcon!=null)
+            _pooledObject = newIcon.GetComponent<PooledObject>();
     }
 
 }

@@ -33,7 +33,7 @@ public class GenericObjectPool<T> : MonoBehaviour where T : MonoBehaviour
         // Populate the pool
         for (int i = 0; i < initPoolSize; i++)
         {
-            T instance = Instantiate(objectToPool);
+            T instance = Instantiate(objectToPool,transform);
             instance.gameObject.SetActive(false);
             stack.Push(instance);
         }
@@ -66,6 +66,7 @@ public class GenericObjectPool<T> : MonoBehaviour where T : MonoBehaviour
     public void ReturnToPool(T pooledObject)
     {
         stack.Push(pooledObject);
+        pooledObject.transform.SetParent(transform);
         pooledObject.gameObject.SetActive(false);
     }
 }

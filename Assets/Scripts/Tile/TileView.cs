@@ -38,9 +38,7 @@ namespace Assets.Scripts.Tile
             // Set the texture of the RawImage to the sprite sheet texture
             _selectedIconImage.material = _selectedMaterialInstance;
             _regularIconImage.texture = iconTexture;
-            _regularIconImage.SetNativeSize();
             _selectedIconImage.texture = iconTexture;
-            _selectedIconImage.SetNativeSize();
             _currentIconImage = _regularIconImage;
         }
 
@@ -64,9 +62,12 @@ namespace Assets.Scripts.Tile
         }
         public void ChangeIcon(Transform antoherIcon)
         {
-            _regularIconImage = antoherIcon.GetChild(0).GetComponent<RawImage>();
-            _selectedIconImage = antoherIcon.GetChild(1).GetComponent<RawImage>();
-            _currentIconImage = _regularIconImage;
+            if (antoherIcon != null)
+            {
+                _regularIconImage = antoherIcon.GetChild(0).GetComponent<RawImage>();
+                _selectedIconImage = antoherIcon.GetChild(1).GetComponent<RawImage>();
+            }
+            _currentIconImage = antoherIcon == null ? null : _regularIconImage;
         }
         //make an handler that holds every vfx. ask him to show the current vfx of the tile state.
         public void UpdateSelectedVFXState(bool isSelected)

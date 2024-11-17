@@ -93,7 +93,7 @@ public class GridManager : MonoBehaviour
     private void OnTileSelected(TileController selectedTile)
     {
         //cant select while
-        if (_isSwapping)
+        if (_isSwapping || selectedTile.GetModelTileType().Equals(_emptyTileDataSO.TileType))
             return;
         if (_firstSelectedTile == null)
         {
@@ -139,8 +139,8 @@ public class GridManager : MonoBehaviour
         tile2.GetIconTransform().transform.SetParent(_overlappingParent);
 
         //move world pos of tiles dotween.
-        sequence.Join(tile1.GetIconTransform().transform.DOMove(pos2WorldPosition, 0.7f)); // Adjust duration as needed
-        sequence.Join(tile2.GetIconTransform().transform.DOMove(pos1WorldPosition, 0.7f));
+        sequence.Join(tile1.GetIconTransform().transform.DOMove(pos2WorldPosition, 0.3f)); // Adjust duration as needed
+        sequence.Join(tile2.GetIconTransform().transform.DOMove(pos1WorldPosition, 0.3f));
         await sequence.Play().AsyncWaitForCompletion();
         //change icons
         Transform tmpTileIcon = tile1.GetIconTransform();
@@ -168,29 +168,71 @@ public class GridManager : MonoBehaviour
         await SwapTiles(pos1, pos2);
         _isSwapping = false;
         var matches = _matchHandler.DetectMatches(_tiles,Height);
-        if (matches.Count > 0)
+        if (matches.Count == 0)
+            await SwapTiles(pos1, pos2);
+        do
         {
             foreach (Match match in matches)
             {
                 //match effect
-                foreach (ITile tile in match.Tiles)
-                { 
-                    (tile as TileController).Initialize(_emptyTileDataSO);
-                    (tile as TileController).GetComponent<CanvasGroup>().alpha = 0;
+                foreach (TileController tile in match.Tiles)
+                {
+                    tile.ChangeIcon(null);
+                    tile.Initialize(_emptyTileDataSO);
+                    ReleaseToTileIconToPool(tile);
                 }
             }
-            FillEmptySpaces();
+            await FillEmptySpaces();
+            matches = _matchHandler.DetectMatches(_tiles, Height);
         }
-        else
-        {
-            await SwapTiles(pos1, pos2);
-            // No match, swap back
-            //remove from comments only when it has logic, because now it swaps back always and it prevents from 
-            //SwapTiles(GetTileAt(pos1).TileIndex,GetTileAt(pos2).TileIndex);
-        }
+        while (matches.Count > 0);
+        
     }
-    public void FillEmptySpaces()
+    public async Task FillEmptySpaces()
     {
-        // Logic to shift tiles down and spawn new ones at the top
+        List<TileController> fellTiles = new List<TileController>();
+
+        Sequence sequence = DOTween.Sequence();
+        for (int x = 0; x < Width; x++) // Process each column individually
+        {
+            for (int y = Height - 1; y > 0; y--) // Start from the bottom row and move up
+            {
+                TileController emptyTile = GetTileAt(x, y);
+                if (emptyTile.GetModelTileType().Equals(_emptyTileDataSO.TileType))
+                {
+                    for (int aboveY = y - 1; aboveY >= 0; aboveY--) // Look for the first non-empty tile above
+                    {
+                        TileController fallingTile = GetTileAt(x, aboveY);
+                        if (!fallingTile.GetModelTileType().Equals(_emptyTileDataSO.TileType))
+                        {
+                            // Move the tile down
+                            Vector3 emptyTileWorldPos = emptyTile.transform.position;
+                            Vector3 fallingTileWorldPos = fallingTile.transform.position;
+
+                            fallingTile.GetIconTransform().SetParent(_overlappingParent);
+                            sequence.Join(fallingTile.GetIconTransform().transform.DOMove(emptyTileWorldPos, 0.7f));
+
+                            // Update tile references
+                            emptyTile.ChangeIcon(fallingTile.GetIconTransform());
+                            emptyTile.Initialize(_tileDataSOs.FirstOrDefault(c => c.TileType.Equals(fallingTile.GetModelTileType())));
+                            fallingTile.Initialize(_emptyTileDataSO);
+                            fallingTile.ChangeIcon(null);
+
+                            fellTiles.Add(emptyTile);
+
+                            // Break to continue processing the next empty tile in the column
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        await sequence.Play().AsyncWaitForCompletion();
+
+        foreach (var felledTile in fellTiles)
+        {
+            if (felledTile.GetIconTransform() != null)
+                felledTile.ConnectIconToParent();
+        }
     }
 }
