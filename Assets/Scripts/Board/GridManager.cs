@@ -198,15 +198,17 @@ public class GridManager : MonoBehaviour
     public async Task FillEmptySpaces()
     {
         List<TileController> fellTiles = new List<TileController>();
-
         Sequence sequence = DOTween.Sequence();
+
         for (int x = 0; x < Width; x++) // Process each column individually
         {
-            for (int y = Height - 1; y > 0; y--) // Start from the bottom row and move up
+            for (int y = Height - 1; y >= 0; y--) // Start from the bottom row and move up
             {
                 TileController emptyTile = GetTileAt(x, y);
                 if (emptyTile.GetModelTileType().Equals(_emptyTileDataSO.TileType))
                 {
+                    bool filled = false;
+
                     for (int aboveY = y - 1; aboveY >= 0; aboveY--) // Look for the first non-empty tile above
                     {
                         TileController fallingTile = GetTileAt(x, aboveY);
@@ -214,7 +216,7 @@ public class GridManager : MonoBehaviour
                         {
                             // Calculate the duration based on the distance
                             float distance = y - aboveY;
-                            float fallDuration = Mathf.Lerp(0.3f, 0.6f, distance / y); // Adjust range (0.6 to 0.8) as needed
+                            float fallDuration = Mathf.Lerp(0.3f, 0.6f, distance / Height); // Adjust range as needed
 
                             // Move the tile down
                             Vector3 emptyTileWorldPos = emptyTile.transform.position;
@@ -229,14 +231,36 @@ public class GridManager : MonoBehaviour
                             fallingTile.ChangeIcon(null);
 
                             fellTiles.Add(emptyTile);
+                            filled = true;
 
-                            // Break to continue processing the next empty tile in the column
                             break;
                         }
+                    }
+
+                    // If the tile wasn't filled by falling tiles, create a new one from the pool
+                    if (!filled)
+                    {
+                        var pooledIcon = _tilesPool.GetPooledObject(); // Get a new icon from the pool
+                        pooledIcon.transform.SetParent(_overlappingParent);
+                        pooledIcon.transform.position = new Vector3(emptyTile.transform.position.x, _tileGrid[0,0].transform.position.y+1, emptyTile.transform.position.z); // Start above the grid
+
+                        // Select a random TileDataSO for the new tile
+                        TileDataSO tileData = _tileDataSOs[Random.Range(0, _tileDataSOs.Length)];
+
+                        // Animate the new tile falling into place
+                        Vector3 targetPosition = emptyTile.transform.position;
+                        sequence.Join(pooledIcon.transform.DOMove(targetPosition, 0.6f).SetEase(Ease.InCubic));
+
+                        // Update tile references
+                        emptyTile.ChangeIcon(pooledIcon.transform);
+                        emptyTile.Initialize(tileData);
+
+                        fellTiles.Add(emptyTile);
                     }
                 }
             }
         }
+
         await sequence.Play().AsyncWaitForCompletion();
 
         foreach (var felledTile in fellTiles)
@@ -245,4 +269,6 @@ public class GridManager : MonoBehaviour
                 felledTile.ConnectIconToParent();
         }
     }
+
+
 }
