@@ -9,9 +9,7 @@ public class GenericObjectPool<T> : MonoBehaviour where T : MonoBehaviour
 
     // Prefab of the object to pool
     [SerializeField] private T objectToPool;
-
-    // Stack to store the pooled objects
-    private Stack<T> stack;
+    [SerializeField] List<T> objectsToPool;
 
     private void Start()
     {
@@ -28,14 +26,13 @@ public class GenericObjectPool<T> : MonoBehaviour where T : MonoBehaviour
             return;
         }
 
-        stack = new Stack<T>();
-
+        objectsToPool= new List<T>();
         // Populate the pool
         for (int i = 0; i < initPoolSize; i++)
         {
             T instance = Instantiate(objectToPool,transform);
             instance.gameObject.SetActive(false);
-            stack.Push(instance);
+            objectsToPool.Add(instance);
         }
     }
 
@@ -48,25 +45,25 @@ public class GenericObjectPool<T> : MonoBehaviour where T : MonoBehaviour
             Debug.LogError("ObjectToPool prefab is not assigned.");
             return null;
         }
-
-        // If the pool is empty, instantiate a new object
-        if (stack.Count == 0)
-        {
-            T newInstance = Instantiate(objectToPool);
-            return newInstance;
-        }
-
-        // Otherwise, retrieve an object from the pool
-        T nextInstance = stack.Pop();
-        nextInstance.gameObject.SetActive(true);
-        return nextInstance;
+        foreach (T instance in objectsToPool)
+            if(!instance.gameObject.activeSelf)
+            {
+                instance.gameObject.SetActive(true);
+                objectsToPool.Remove(instance);
+                Debug.Log("removed from pool");
+                return instance;
+            }
+        Debug.Log("new pool item");
+        T newInstance = Instantiate(objectToPool, transform);
+        return newInstance;
     }
 
     // Returns the object to the pool
     public void ReturnToPool(T pooledObject)
     {
-        stack.Push(pooledObject);
         pooledObject.transform.SetParent(transform);
         pooledObject.gameObject.SetActive(false);
+        Debug.Log("return to pool");
+        objectsToPool.Add(pooledObject);
     }
 }

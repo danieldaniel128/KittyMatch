@@ -51,6 +51,7 @@ public class GridManager : MonoBehaviour
 
                 // Initialize the tile with the properties from the selected TileDataSO
                 tileComponent.Initialize(tileData);
+                tileComponent.AttachPool(_tilesPool);
                 //set the event of OnSelectedTile.
                 tileComponent.OnTrySelectingTile.AddListener(()=>OnTileSelected(tileComponent)); // Register listener
                 //set index for each created tile.
@@ -87,10 +88,6 @@ public class GridManager : MonoBehaviour
     }
     public TileController GetTileAt(int x, int y) { Vector2Int tileIndex = new Vector2Int(x, y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
     public TileController GetTileAt(Vector2Int tileIndexSearch) { Vector2Int tileIndex = new Vector2Int(tileIndexSearch.x, tileIndexSearch.y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
-    public void ReleaseToTileIconToPool(TileController tile)
-    {
-        _tilesPool.ReturnToPool(tile.PooledObject);
-    }
     private void OnTileSelected(TileController selectedTile)
     {
         //cant select while
@@ -185,7 +182,8 @@ public class GridManager : MonoBehaviour
                 {
                     tile.ChangeIcon(null);
                     tile.Initialize(_emptyTileDataSO);
-                    ReleaseToTileIconToPool(tile);
+                    if(tile.PooledObject!=null)
+                        tile.ReleaseToPool();
                 }
             }
             await FillEmptySpaces();

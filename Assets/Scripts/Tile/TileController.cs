@@ -17,6 +17,7 @@ public class TileController : MonoBehaviour, IPointerDownHandler, ITile
     public UnityEvent OnSelectedTile;
     public UnityEvent OnDeSelectedTile;
     public PooledObject PooledObject => _pooledObject;
+    private TilePool _pool;
     private void Start()
     {
         OnSelectedTile.AddListener(() => _tileView?.UpdateSelectedVFXState(_tileModel.IsSelected));
@@ -40,6 +41,10 @@ public class TileController : MonoBehaviour, IPointerDownHandler, ITile
         _tileModel = new TileModel(tileDataSO);
         // Initializing the view based on model's data
         _tileView.SetNewTileIcon(_tileModel.TileData.TileIcon);
+    }
+    public void AttachPool(TilePool tilePool)
+    {
+        _pool = tilePool;
     }
 
     public  void OnPointerDown(PointerEventData eventData)
@@ -79,7 +84,11 @@ public class TileController : MonoBehaviour, IPointerDownHandler, ITile
         if(newIcon!=null)
             _pooledObject = newIcon.GetComponent<PooledObject>();
     }
-
+    public void ReleaseToPool()
+    {
+        _pool.ReturnToPool(_pooledObject);
+        _pooledObject = null;
+    }
 }
 public interface ITile
 {
