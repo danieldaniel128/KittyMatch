@@ -183,6 +183,7 @@ public class GridManager : MonoBehaviour
         }
         else
         {
+            await SwapTiles(pos1, pos2);
             // No match, swap back
             //remove from comments only when it has logic, because now it swaps back always and it prevents from 
             //SwapTiles(GetTileAt(pos1).TileIndex,GetTileAt(pos2).TileIndex);
