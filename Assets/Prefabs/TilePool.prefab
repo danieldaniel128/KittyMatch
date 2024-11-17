@@ -48,5 +48,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 08aa6d9ac43077a448847e9464b58d83, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initPoolSize: 7
+  initPoolSize: 4
   objectToPool: {fileID: 156346505555516277, guid: 71353caab70d57a4b8817a319dcf7c40, type: 3}
+  objectsToPool: []
