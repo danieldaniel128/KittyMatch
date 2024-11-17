@@ -17,9 +17,9 @@ namespace Assets.Scripts.Tile
             TileData = tileDataSO;
             IsSelected = false;
         }
-        public bool ToggleSelection()
+        public bool ToggleSelection(bool isSelected)
         {
-            IsSelected = !IsSelected;
+            IsSelected = isSelected;
             return IsSelected;
         }
         public void Reset()

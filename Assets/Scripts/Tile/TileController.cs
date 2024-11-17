@@ -13,15 +13,16 @@ public class TileController : MonoBehaviour, IPointerDownHandler, ITile
     public int X { get; private set; }
     public int Y { get; private set; }
     public Vector2Int TileIndex { get => _tileIndex; private set { _tileIndex = value; X = _tileIndex.x; Y = _tileIndex.y; } }
-    public UnityEvent OnTrySelectingTile;
-    public UnityEvent OnSelectedTile;
-    public UnityEvent OnDeSelectedTile;
+    public UnityEvent<TileController> OnTrySelectingTile;
+    public UnityEvent<bool> OnSelectedTile;
+    public UnityEvent<bool> OnDeSelectedTile;
+    public bool IsSelected => _tileModel.IsSelected;
     public PooledObject PooledObject => _pooledObject;
     private TilePool _pool;
     private void Start()
     {
-        OnSelectedTile.AddListener(() => _tileView?.UpdateSelectedVFXState(_tileModel.IsSelected));
-        OnDeSelectedTile.AddListener(() => _tileView?.UpdateSelectedVFXState(_tileModel.IsSelected));
+        OnSelectedTile.AddListener(ToggleSelection);
+        OnDeSelectedTile.AddListener(ToggleSelection);
     }
     private void OnDestroy()
     {
@@ -46,16 +47,20 @@ public class TileController : MonoBehaviour, IPointerDownHandler, ITile
     {
         _pool = tilePool;
     }
-
+    void ToggleSelection(bool isSelected)
+    {
+        _tileModel?.ToggleSelection(isSelected);
+        _tileView?.UpdateSelectedVFXState(_tileModel.IsSelected);
+        Debug.Log(_tileModel.IsSelected);
+    }
     public  void OnPointerDown(PointerEventData eventData)
     {
         //Debug.Log("Tile clicked");
 
         // Request model to process the selection toggle and return the new state
-        bool isSelected = _tileModel.ToggleSelection();
 
         // Update view based on the processed data
-        OnTrySelectingTile?.Invoke();
+        OnTrySelectingTile?.Invoke(this);
     }
     public string GetModelTileType()
     {

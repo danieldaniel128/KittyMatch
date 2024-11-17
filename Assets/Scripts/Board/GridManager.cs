@@ -53,7 +53,7 @@ public class GridManager : MonoBehaviour
                 tileComponent.Initialize(tileData);
                 tileComponent.AttachPool(_tilesPool);
                 //set the event of OnSelectedTile.
-                tileComponent.OnTrySelectingTile.AddListener(()=>OnTileSelected(tileComponent)); // Register listener
+                tileComponent.OnTrySelectingTile.AddListener(OnTileSelected); // Register listener
                 //set index for each created tile.
                 tileComponent.SetTileIndex(x, y);
                 //add to list of tiles.
@@ -97,21 +97,26 @@ public class GridManager : MonoBehaviour
         {
             _firstSelectedTile = selectedTile;
             //visual to selected effect
-            selectedTile.OnSelectedTile?.Invoke();
+            selectedTile.OnSelectedTile?.Invoke(true);
             _firstSelectedTile.GetIconTransform().DOScale(Vector3.one * 1.1f, 0.1f);
         }
         else
         {
-            selectedTile.OnSelectedTile?.Invoke();
-            // Calculate positions of both tiles
+            //Calculate positions of both tiles
             Vector2Int pos1 = _firstSelectedTile.TileIndex;
             Vector2Int pos2 = selectedTile.TileIndex;
+            if (!CanSwapTiles(pos1, pos2))
+            { 
+                _firstSelectedTile.OnDeSelectedTile?.Invoke(false);
+                _firstSelectedTile.GetIconTransform().transform.DOScale(Vector3.one, 0.1f);
+                _firstSelectedTile = null;
+                return;
+            }
+            selectedTile.OnSelectedTile?.Invoke(true);
             //visual to selected effect
             selectedTile.GetIconTransform().DOScale(Vector3.one * 1.1f, 0.1f);
-            if (CanSwapTiles(pos1,pos2))
                 // Call OnTileSwap with the selected positions
-                OnTileSwap(pos1, pos2);
-
+            OnTileSwap(pos1, pos2);
             // Reset selection
             _firstSelectedTile = null;
         }
@@ -153,9 +158,9 @@ public class GridManager : MonoBehaviour
         tile2.GetIconTransform().transform.DOScale(Vector3.one, 0.1f);
         tile1.ConnectIconToParent();
         tile2.ConnectIconToParent();
-        //deslect tiles after swapping.
-        tile1.OnDeSelectedTile?.Invoke();
-        tile2.OnDeSelectedTile?.Invoke();
+        //DeSelect tiles after swapping.
+        tile1.OnDeSelectedTile?.Invoke(false);
+        tile2.OnDeSelectedTile?.Invoke(false);
     }
 
 
