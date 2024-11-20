@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-public class TileController : MonoBehaviour, IPointerDownHandler, ITile
+public class TileController : MonoBehaviour, ITile, IPointerDownHandler
 {
     [SerializeField] private PooledObject _pooledObject;
     [SerializeField] private TileDataSO _tileDataSO;
@@ -51,17 +51,8 @@ public class TileController : MonoBehaviour, IPointerDownHandler, ITile
     {
         _tileModel?.ToggleSelection(isSelected);
         _tileView?.UpdateSelectedVFXState(_tileModel.IsSelected);
-        Debug.Log(_tileModel.IsSelected);
     }
-    public  void OnPointerDown(PointerEventData eventData)
-    {
-        //Debug.Log("Tile clicked");
-
-        // Request model to process the selection toggle and return the new state
-
-        // Update view based on the processed data
-        OnTrySelectingTile?.Invoke(this);
-    }
+    
     public string GetModelTileType()
     {
        return _tileModel.GetTileType();
@@ -93,6 +84,12 @@ public class TileController : MonoBehaviour, IPointerDownHandler, ITile
     {
         _pool.ReturnToPool(_pooledObject);
         _pooledObject = null;
+    }
+
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        OnTrySelectingTile?.Invoke(this);
     }
 }
 public interface ITile

@@ -11,6 +11,7 @@ public class GridManager : MonoBehaviour
     public int Width;
     public int Height;
     public GameObject basicTilePrefab;
+    [SerializeField] private SwipeInputHandler _swipeInputHandler;
     [SerializeField] private Transform _overlappingParent;
     [SerializeField] private Transform _tilesHolder;
     [SerializeField] private TilePool _tilesPool;
@@ -28,6 +29,8 @@ public class GridManager : MonoBehaviour
     private void Start()
     {
         InitializeGrid();
+        _swipeInputHandler.OnSwipe.AddListener(HandleTileSwipe);
+        _swipeInputHandler.OnTap.AddListener(DeselectDrag);
     }
 
     private void InitializeGrid()
@@ -53,7 +56,7 @@ public class GridManager : MonoBehaviour
                 tileComponent.Initialize(tileData);
                 tileComponent.AttachPool(_tilesPool);
                 //set the event of OnSelectedTile.
-                tileComponent.OnTrySelectingTile.AddListener(OnTileSelected); // Register listener
+                tileComponent.OnTrySelectingTile.AddListener(OnTileDragged); // Register listener
                 //set index for each created tile.
                 tileComponent.SetTileIndex(x, y);
                 //add to list of tiles.
@@ -88,7 +91,33 @@ public class GridManager : MonoBehaviour
     }
     public TileController GetTileAt(int x, int y) { Vector2Int tileIndex = new Vector2Int(x, y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
     public TileController GetTileAt(Vector2Int tileIndexSearch) { Vector2Int tileIndex = new Vector2Int(tileIndexSearch.x, tileIndexSearch.y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
-    private void OnTileSelected(TileController selectedTile)
+    private void HandleTileSwipe(Vector2Int swipeDirection)
+    {
+        Debug.Log("stopped drag");
+        //Calculate positions of both tiles
+        Vector2Int draggedTilePos = _firstSelectedTile.TileIndex;
+        Vector2Int swapTargetPos = _firstSelectedTile.TileIndex + swipeDirection;
+        TileController swapTargetTile = GetTileAt(swapTargetPos);
+        if (swapTargetTile == null || !CanSwapTiles(draggedTilePos, swapTargetPos))
+        {
+            DeselectDrag();
+            return;
+        }
+        swapTargetTile.OnSelectedTile?.Invoke(true);
+        //visual to selected effect
+        swapTargetTile.GetIconTransform().DOScale(Vector3.one * 1.1f, 0.1f);
+        // Call OnTileSwap with the selected positions
+        OnTileSwap(draggedTilePos, swapTargetPos);
+        // Reset selection
+        _firstSelectedTile = null;
+    }
+    private void DeselectDrag()
+    {
+        _firstSelectedTile.OnDeSelectedTile?.Invoke(false);
+        _firstSelectedTile.GetIconTransform().transform.DOScale(Vector3.one, 0.1f);
+        _firstSelectedTile = null;
+    }
+    private void OnTileDragged(TileController selectedTile)
     {
         //cant select while
         if (_isSwapping || _isMatching || selectedTile.GetModelTileType().Equals(_emptyTileDataSO.TileType))
@@ -99,26 +128,6 @@ public class GridManager : MonoBehaviour
             //visual to selected effect
             selectedTile.OnSelectedTile?.Invoke(true);
             _firstSelectedTile.GetIconTransform().DOScale(Vector3.one * 1.1f, 0.1f);
-        }
-        else
-        {
-            //Calculate positions of both tiles
-            Vector2Int pos1 = _firstSelectedTile.TileIndex;
-            Vector2Int pos2 = selectedTile.TileIndex;
-            if (!CanSwapTiles(pos1, pos2))
-            { 
-                _firstSelectedTile.OnDeSelectedTile?.Invoke(false);
-                _firstSelectedTile.GetIconTransform().transform.DOScale(Vector3.one, 0.1f);
-                _firstSelectedTile = null;
-                return;
-            }
-            selectedTile.OnSelectedTile?.Invoke(true);
-            //visual to selected effect
-            selectedTile.GetIconTransform().DOScale(Vector3.one * 1.1f, 0.1f);
-                // Call OnTileSwap with the selected positions
-            OnTileSwap(pos1, pos2);
-            // Reset selection
-            _firstSelectedTile = null;
         }
     }
     bool CanSwapTiles(Vector2Int posTile1, Vector2Int posTile2)

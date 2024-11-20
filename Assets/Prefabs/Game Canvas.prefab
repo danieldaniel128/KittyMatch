@@ -1281,6 +1281,10 @@ PrefabInstance:
       propertyPath: _overlappingParent
       value: 
       objectReference: {fileID: 2615288399659995814}
+    - target: {fileID: 2064521838677041246, guid: 0f1dcbb981b32e745a5cd62ed91a844f, type: 3}
+      propertyPath: _swipeInputHandler
+      value: 
+      objectReference: {fileID: 4546572924343582966}
     - target: {fileID: 2396946657090348291, guid: 0f1dcbb981b32e745a5cd62ed91a844f, type: 3}
       propertyPath: m_Name
       value: Board
@@ -1296,13 +1300,40 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2396946657090348291, guid: 0f1dcbb981b32e745a5cd62ed91a844f, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4546572924343582966}
   m_SourcePrefab: {fileID: 100100000, guid: 0f1dcbb981b32e745a5cd62ed91a844f, type: 3}
 --- !u!224 &6519822839173051349 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 893397253394519600, guid: 0f1dcbb981b32e745a5cd62ed91a844f, type: 3}
   m_PrefabInstance: {fileID: 6205657120554132965}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &8601107886437728486 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2396946657090348291, guid: 0f1dcbb981b32e745a5cd62ed91a844f, type: 3}
+  m_PrefabInstance: {fileID: 6205657120554132965}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4546572924343582966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8601107886437728486}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f259044775c1bf0428e4a94db234841c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnSwipe:
+    m_PersistentCalls:
+      m_Calls: []
+  OnTap:
+    m_PersistentCalls:
+      m_Calls: []
+  swipeThreshold: 50
 --- !u!1001 &6874602788951726983
 PrefabInstance:
   m_ObjectHideFlags: 0
