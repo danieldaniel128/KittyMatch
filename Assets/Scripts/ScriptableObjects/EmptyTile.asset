@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 709c5b7c34b6c0a4cac4ede7d3fd88bd, type: 3}
   m_Name: EmptyTile
   m_EditorClassIdentifier: 
-  TileName: Empty
-  TileType: Empty
+  TileName: EmptyRendered
+  TileType: EmptyRendered
   TileIcon: {fileID: 0}
   IsRenderered: 1

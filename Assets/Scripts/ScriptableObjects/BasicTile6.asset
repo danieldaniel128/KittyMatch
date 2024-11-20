@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TileName: Ball
   TileType: Ball
-  TileIcon: {fileID: 21300000, guid: 3e62eb1afa1d32842a0a9b892b620f22, type: 3}
+  TileIcon: {fileID: 2800000, guid: 68c548174c98a464b96a8a7789fb545b, type: 3}
   IsRenderered: 1
