@@ -50,7 +50,8 @@ public class TileController : MonoBehaviour, ITile, IPointerDownHandler
     void ToggleSelection(bool isSelected)
     {
         _tileModel?.ToggleSelection(isSelected);
-        _tileView?.UpdateSelectedVFXState(_tileModel.IsSelected);
+        _tileView.IsSelected = _tileModel.IsSelected;
+        Debug.Log(_tileView.IsSelected);
     }
     
     public string GetModelTileType()
@@ -66,7 +67,7 @@ public class TileController : MonoBehaviour, ITile, IPointerDownHandler
     {
         TileIndex = newTileIndex;
     }
-    public Transform GetIconTransform()
+    public IconHandler GetIcon()
     {
         return _tileView.Icon;
     }
@@ -74,7 +75,7 @@ public class TileController : MonoBehaviour, ITile, IPointerDownHandler
     {
         _tileView.ConnectIconToParent();
     }
-    public void ChangeIcon(Transform newIcon)
+    public void ChangeIcon(IconHandler newIcon)
     {
         _tileView.ChangeIcon(newIcon);
         if(newIcon!=null)

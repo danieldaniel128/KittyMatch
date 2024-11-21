@@ -105,7 +105,7 @@ public class GridManager : MonoBehaviour
         }
         swapTargetTile.OnSelectedTile?.Invoke(true);
         //visual to selected effect
-        swapTargetTile.GetIconTransform().DOScale(Vector3.one * 1.1f, 0.1f);
+        swapTargetTile.GetIcon().transform.DOScale(Vector3.one * 1.1f, 0.1f);
         // Call OnTileSwap with the selected positions
         OnTileSwap(draggedTilePos, swapTargetPos);
         // Reset selection
@@ -114,7 +114,7 @@ public class GridManager : MonoBehaviour
     private void DeselectDrag()
     {
         _firstSelectedTile.OnDeSelectedTile?.Invoke(false);
-        _firstSelectedTile.GetIconTransform().transform.DOScale(Vector3.one, 0.1f);
+        _firstSelectedTile.GetIcon().transform.transform.DOScale(Vector3.one, 0.1f);
         _firstSelectedTile = null;
     }
     private void OnTileDragged(TileController selectedTile)
@@ -127,7 +127,7 @@ public class GridManager : MonoBehaviour
             _firstSelectedTile = selectedTile;
             //visual to selected effect
             selectedTile.OnSelectedTile?.Invoke(true);
-            _firstSelectedTile.GetIconTransform().DOScale(Vector3.one * 1.1f, 0.1f);
+            _firstSelectedTile.GetIcon().transform.DOScale(Vector3.one * 1.1f, 0.1f);
         }
     }
     bool CanSwapTiles(Vector2Int posTile1, Vector2Int posTile2)
@@ -147,24 +147,24 @@ public class GridManager : MonoBehaviour
         Vector3 pos2WorldPosition = tile2.transform.position;
         Sequence sequence = DOTween.Sequence();
         //set parent for overlapping for ui.
-        tile1.GetIconTransform().SetParent(_overlappingParent);
-        tile2.GetIconTransform().transform.SetParent(_overlappingParent);
+        tile1.GetIcon().transform.SetParent(_overlappingParent);
+        tile2.GetIcon().transform.transform.SetParent(_overlappingParent);
 
         //move world pos of tiles dotween.
-        sequence.Join(tile1.GetIconTransform().transform.DOMove(pos2WorldPosition, 0.3f)); // Adjust duration as needed
-        sequence.Join(tile2.GetIconTransform().transform.DOMove(pos1WorldPosition, 0.3f));
+        sequence.Join(tile1.GetIcon().transform.transform.DOMove(pos2WorldPosition, 0.3f)); // Adjust duration as needed
+        sequence.Join(tile2.GetIcon().transform.transform.DOMove(pos1WorldPosition, 0.3f));
         await sequence.Play().AsyncWaitForCompletion();
         //change icons
-        Transform tmpTileIcon = tile1.GetIconTransform();
-        tile1.ChangeIcon(tile2.GetIconTransform());
+        IconHandler tmpTileIcon = tile1.GetIcon();
+        tile1.ChangeIcon(tile2.GetIcon());
         tile2.ChangeIcon(tmpTileIcon);
         //change references of the tiles icon and data.
         TileDataSO tmpTileDataSO = _tileDataSOs.FirstOrDefault(c=> c.TileType.Equals(tile1.GetModelTileType()));
         tile1.Initialize(_tileDataSOs.FirstOrDefault(c => c.TileType.Equals(tile2.GetModelTileType())));
         tile2.Initialize(tmpTileDataSO);
         //visual back to deselect.
-        tile1.GetIconTransform().transform.DOScale(Vector3.one, 0.1f);
-        tile2.GetIconTransform().transform.DOScale(Vector3.one, 0.1f);
+        tile1.GetIcon().transform.transform.DOScale(Vector3.one, 0.1f);
+        tile2.GetIcon().transform.transform.DOScale(Vector3.one, 0.1f);
         tile1.ConnectIconToParent();
         tile2.ConnectIconToParent();
         //DeSelect tiles after swapping.
@@ -233,11 +233,11 @@ public class GridManager : MonoBehaviour
                             // Move the tile down
                             Vector3 emptyTileWorldPos = emptyTile.transform.position;
 
-                            fallingTile.GetIconTransform().SetParent(_overlappingParent);
-                            sequence.Join(fallingTile.GetIconTransform().transform.DOMove(emptyTileWorldPos, fallDuration).SetEase(Ease.InCubic));
+                            fallingTile.GetIcon().transform.SetParent(_overlappingParent);
+                            sequence.Join(fallingTile.GetIcon().transform.transform.DOMove(emptyTileWorldPos, fallDuration).SetEase(Ease.InCubic));
 
                             // Update tile references
-                            emptyTile.ChangeIcon(fallingTile.GetIconTransform());
+                            emptyTile.ChangeIcon(fallingTile.GetIcon());
                             emptyTile.Initialize(_tileDataSOs.FirstOrDefault(c => c.TileType.Equals(fallingTile.GetModelTileType())));
                             fallingTile.Initialize(_emptyTileDataSO);
                             fallingTile.ChangeIcon(null);
@@ -264,7 +264,7 @@ public class GridManager : MonoBehaviour
                         sequence.Join(pooledIcon.transform.DOMove(targetPosition, 0.6f).SetEase(Ease.InCubic));
 
                         // Update tile references
-                        emptyTile.ChangeIcon(pooledIcon.transform);
+                        emptyTile.ChangeIcon(pooledIcon as IconHandler);
                         emptyTile.Initialize(tileData);
 
                         fellTiles.Add(emptyTile);
@@ -277,7 +277,7 @@ public class GridManager : MonoBehaviour
 
         foreach (var felledTile in fellTiles)
         {
-            if (felledTile.GetIconTransform() != null)
+            if (felledTile.GetIcon().transform != null)
                 felledTile.ConnectIconToParent();
         }
     }
