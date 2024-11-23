@@ -16,3 +16,4 @@ MonoBehaviour:
   TileType: Bell
   TileIcon: {fileID: 2800000, guid: af0d39ccb2271454293e1101dc8ec2fa, type: 3}
   IsRenderered: 1
+  Color: {r: 0.9251054, g: 0.99371064, b: 0.4906055, a: 0.6745098}

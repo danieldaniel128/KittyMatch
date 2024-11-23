@@ -24,7 +24,7 @@ public class IconHandler : PooledObject
     [Header("Popped Parameters")]
     [SerializeField] GameObject _popVFX;
     [SerializeField] ParticleSystem _breakEffect;
-    [SerializeField] float _popDuration;
+    public Color BreakingVFXColor;
 
     private TaskCompletionSource<bool> _popTaskCompletionSource;
     private void Awake()
@@ -35,7 +35,7 @@ public class IconHandler : PooledObject
         {
             { typeof(IconIdleState), new IconIdleState(_idleIconImage) },
             { typeof(IconSelectedState), new IconSelectedState(_selectedIconImage,_selectedMaterial) },
-            { typeof(IconPoppedState), new IconPoppedState(_idleIconImage,_popVFX,_popDuration,_breakEffect) }
+            { typeof(IconPoppedState), new IconPoppedState(_idleIconImage,_popVFX,_breakEffect,BreakingVFXColor) }
         };
 
         At(GetState<IconIdleState>(), GetState<IconSelectedState>(), new FuncPredicate(() => IsSelected));
@@ -65,10 +65,12 @@ public class IconHandler : PooledObject
     {
         return (T)_iconStates[typeof(T)];
     }
-    public void SetIconImage(Texture2D iconTexture)
+    public void SetIconImage(Texture2D iconTexture,Color breakingVFXColor)
     {
         _idleIconImage.texture = iconTexture;
         _selectedIconImage.texture = iconTexture;
+        BreakingVFXColor = breakingVFXColor;
+        GetState<IconPoppedState>().SetNewPopColor(breakingVFXColor);
     }
 
     public async Task AwaitPop()

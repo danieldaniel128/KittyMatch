@@ -28,14 +28,14 @@ namespace Assets.Scripts.Tile
         }
         
         //[SerializeField] Vector2 _iconSize;
-        public void SetNewTileIcon(Texture2D iconTexture)
+        public void SetNewTileIcon(Texture2D iconTexture, Color breakingVFXColor)
         {
             if (iconTexture == null)
             {
                 Debug.LogWarning("icon texture is null, cannot set tile icon.");
                 return;
             }
-            Icon.SetIconImage(iconTexture);
+            Icon.SetIconImage(iconTexture, breakingVFXColor);
             
         }
 

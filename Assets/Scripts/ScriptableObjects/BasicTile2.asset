@@ -16,3 +16,4 @@ MonoBehaviour:
   TileType: Fish
   TileIcon: {fileID: 2800000, guid: a37bae76dd5370043a9aa073e40585b4, type: 3}
   IsRenderered: 1
+  Color: {r: 0.98039216, g: 0.8277053, b: 0.63529414, a: 0.6745098}

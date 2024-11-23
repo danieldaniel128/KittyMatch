@@ -42,7 +42,7 @@ public class TileController : MonoBehaviour, ITile, IPointerDownHandler
         _tileDataSO = tileDataSO;
         _tileModel = new TileModel(tileDataSO);
         // Initializing the view based on model's data
-        _tileView.SetNewTileIcon(_tileModel.TileData.TileIcon);
+        _tileView.SetNewTileIcon(_tileModel.TileData.TileIcon, _tileModel.TileData.Color);
     }
     public void AttachPool(TilePool tilePool)
     {

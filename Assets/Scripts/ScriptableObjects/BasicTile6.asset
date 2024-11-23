@@ -16,3 +16,4 @@ MonoBehaviour:
   TileType: Ball
   TileIcon: {fileID: 2800000, guid: 68c548174c98a464b96a8a7789fb545b, type: 3}
   IsRenderered: 1
+  Color: {r: 0.98039216, g: 0.63529414, b: 0.8716372, a: 0.6745098}

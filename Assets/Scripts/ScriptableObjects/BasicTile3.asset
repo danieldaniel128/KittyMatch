@@ -16,3 +16,4 @@ MonoBehaviour:
   TileType: Collar
   TileIcon: {fileID: 2800000, guid: b47815a3db72c1242ad48f746f3e6903, type: 3}
   IsRenderered: 1
+  Color: {r: 0.98039216, g: 0.64047474, b: 0.63529414, a: 0.6745098}
