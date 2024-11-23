@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.UI;
@@ -20,8 +21,12 @@ public class IconHandler : PooledObject
     [Header("Selected Parameters")]
     [SerializeField] private RawImage _selectedIconImage;
     [SerializeField] private Material _selectedMaterial;
+    [Header("Popped Parameters")]
+    [SerializeField] GameObject _popVFX;
+    [SerializeField] ParticleSystem _breakEffect;
+    [SerializeField] float _popDuration;
 
-    private bool _hasInit;
+    private TaskCompletionSource<bool> _popTaskCompletionSource;
     private void Awake()
     {
         _stateMachine = new StateMachine();
@@ -30,12 +35,14 @@ public class IconHandler : PooledObject
         {
             { typeof(IconIdleState), new IconIdleState(_idleIconImage) },
             { typeof(IconSelectedState), new IconSelectedState(_selectedIconImage,_selectedMaterial) },
-            { typeof(IconPoppedState), new IconPoppedState() }
+            { typeof(IconPoppedState), new IconPoppedState(_idleIconImage,_popVFX,_popDuration,_breakEffect) }
         };
-
 
         At(GetState<IconIdleState>(), GetState<IconSelectedState>(), new FuncPredicate(() => IsSelected));
         At(GetState<IconSelectedState>(), GetState<IconPoppedState>(), new FuncPredicate(() => IsPopping));
+        At(GetState<IconIdleState>(), GetState<IconPoppedState>(), new FuncPredicate(() => IsPopping));
+        Any(GetState<IconIdleState>(), new FuncPredicate(() => !IsPopping && !IsSelected));
+        GetState<IconPoppedState>().OnPopComplete += HandlePopComplete;
     }
     private void Update()
     {
@@ -49,6 +56,8 @@ public class IconHandler : PooledObject
     void Any(IState to, IPredicate condition) => _stateMachine.AddAnyTransition(to, condition);
     public override void ResetPooledObject()
     {
+        IsSelected = false;
+        IsPopping = false;
         _stateMachine.SetState(GetState<IconIdleState>());
     }
 
@@ -61,4 +70,25 @@ public class IconHandler : PooledObject
         _idleIconImage.texture = iconTexture;
         _selectedIconImage.texture = iconTexture;
     }
+
+    public async Task AwaitPop()
+    {
+        _popTaskCompletionSource = new TaskCompletionSource<bool>();
+        await _popTaskCompletionSource.Task;
+    }
+
+    private void NotifyPopComplete()
+    {
+        _popTaskCompletionSource?.TrySetResult(true);
+    }
+    public void HandlePopComplete()
+    {
+        //return to pool for reuse icon for other tiles.
+        Pool.ReturnToPool(this);
+        //finished popping.
+        IsPopping = false;
+        // Notify that the pop is complete.
+        NotifyPopComplete();
+    }
+
 }       

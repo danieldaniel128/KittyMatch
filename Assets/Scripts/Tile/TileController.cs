@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Tile;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -46,14 +47,25 @@ public class TileController : MonoBehaviour, ITile, IPointerDownHandler
     public void AttachPool(TilePool tilePool)
     {
         _pool = tilePool;
+        PooledObject.AttachPool(_pool);
+    }
+    public async Task AwaitPop()
+    {
+        if (_tileView.Icon != null)
+        {
+            await _tileView.Icon.AwaitPop();
+        }
     }
     void ToggleSelection(bool isSelected)
     {
         _tileModel?.ToggleSelection(isSelected);
         _tileView.IsSelected = _tileModel.IsSelected;
-        Debug.Log(_tileView.IsSelected);
     }
-    
+    public void PopIcon()
+    {
+        _tileView.HasPopped = true;
+    }
+
     public string GetModelTileType()
     {
        return _tileModel.GetTileType();

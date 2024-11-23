@@ -93,7 +93,6 @@ public class GridManager : MonoBehaviour
     public TileController GetTileAt(Vector2Int tileIndexSearch) { Vector2Int tileIndex = new Vector2Int(tileIndexSearch.x, tileIndexSearch.y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
     private void HandleTileSwipe(Vector2Int swipeDirection)
     {
-        Debug.Log("stopped drag");
         //Calculate positions of both tiles
         Vector2Int draggedTilePos = _firstSelectedTile.TileIndex;
         Vector2Int swapTargetPos = _firstSelectedTile.TileIndex + swipeDirection;
@@ -191,14 +190,21 @@ public class GridManager : MonoBehaviour
             _isMatching = true;
             foreach (Match match in matches)
             {
+                var popTasks = new List<Task>();
                 //match effect
+                foreach (TileController tile in match.Tiles)
+                {
+                    Debug.Log("popped tile");
+                    tile.PopIcon();
+                    popTasks.Add(tile.AwaitPop()); // Await the pop state completion
+                }
+                await Task.WhenAll(popTasks.ToArray()); // Wait for all pop animations to complete
                 foreach (TileController tile in match.Tiles)
                 {
                     tile.ChangeIcon(null);
                     tile.Initialize(_emptyTileDataSO);
-                    if(tile.PooledObject!=null)
-                        tile.ReleaseToPool();
                 }
+                Debug.Log("pop");
             }
             await FillEmptySpaces();
             matches = _matchHandler.DetectMatches(_tiles, Height);

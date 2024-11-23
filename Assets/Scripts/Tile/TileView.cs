@@ -18,13 +18,15 @@ namespace Assets.Scripts.Tile
         public bool IsSelected
         {
             get { return _isSelected; }
-            set { _isSelected = value; Icon.IsSelected = _isSelected; }
+            set { _isSelected = value; if (Icon != null) Icon.IsSelected = _isSelected; }
         }
-        private bool IsPopped
+        bool _hasPopped;
+        public bool HasPopped
         {
-            get { return IsSelected; }
-            set { IsSelected = value; Icon.IsSelected = value; }
+            get { return _hasPopped; }
+            set { _hasPopped = value;if(Icon!=null) Icon.IsPopping = _hasPopped; }
         }
+        
         //[SerializeField] Vector2 _iconSize;
         public void SetNewTileIcon(Texture2D iconTexture)
         {
