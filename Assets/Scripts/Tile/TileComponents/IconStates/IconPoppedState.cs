@@ -27,6 +27,13 @@ public class IconPoppedState : IconBaseState
         foreach(Transform VFXSystem in _popObjectVFX.transform)
         {
             ParticleSystem.MainModule main = VFXSystem.GetComponent<ParticleSystem>().main;
+            if(VFXSystem == _popObjectVFX.transform.GetChild(3))
+            {
+                Color color = _breakingVFXColor;
+                color.a = 1;
+                main.startColor = color;
+                continue;
+            }
             main.startColor = _breakingVFXColor;
         }
         _popObjectVFX.SetActive(true);

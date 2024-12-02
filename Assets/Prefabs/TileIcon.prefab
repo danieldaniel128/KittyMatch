@@ -211,7 +211,7 @@ MonoBehaviour:
   _selectedMaterial: {fileID: 2100000, guid: 5f1f1ca1dc763df4f9c7661f1837df7e, type: 2}
   _popVFX: {fileID: 3546765254644375807}
   _breakEffect: {fileID: 26399311586368238}
-  BreakingVFXColor: {r: 0, g: 0, b: 0, a: 0}
+  BreakingVFXColor: {r: 1, g: 0, b: 0, a: 1}
 --- !u!1001 &130065131441507596
 PrefabInstance:
   m_ObjectHideFlags: 0

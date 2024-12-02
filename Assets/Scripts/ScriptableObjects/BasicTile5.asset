@@ -16,4 +16,4 @@ MonoBehaviour:
   TileType: YarnBall
   TileIcon: {fileID: 2800000, guid: 73097c0ff28fc504bb8c33a99f355bb3, type: 3}
   IsRenderered: 1
-  Color: {r: 0.6431373, g: 0.98039216, b: 0.63529414, a: 0.6745098}
+  Color: {r: 0.6431373, g: 0.98039216, b: 0.63529414, a: 0.79607844}
