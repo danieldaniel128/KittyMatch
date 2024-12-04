@@ -23,7 +23,7 @@ public class IconHandler : PooledObject
     [SerializeField] private Material _selectedMaterial;
     [Header("Popped Parameters")]
     [SerializeField] GameObject _popVFX;
-    [SerializeField] ParticleSystem _breakEffect;
+    [SerializeField] float _deactivatebreakEffectTime;
     public Color BreakingVFXColor;
 
     private TaskCompletionSource<bool> _popTaskCompletionSource;
@@ -35,7 +35,7 @@ public class IconHandler : PooledObject
         {
             { typeof(IconIdleState), new IconIdleState(_idleIconImage) },
             { typeof(IconSelectedState), new IconSelectedState(_selectedIconImage,_selectedMaterial) },
-            { typeof(IconPoppedState), new IconPoppedState(_idleIconImage,_popVFX,_breakEffect,BreakingVFXColor) }
+            { typeof(IconPoppedState), new IconPoppedState(_idleIconImage,_popVFX,BreakingVFXColor,_deactivatebreakEffectTime) }
         };
 
         At(GetState<IconIdleState>(), GetState<IconSelectedState>(), new FuncPredicate(() => IsSelected));
@@ -82,6 +82,7 @@ public class IconHandler : PooledObject
     private void NotifyPopComplete()
     {
         _popTaskCompletionSource?.TrySetResult(true);
+        Debug.Log("pop completed");
     }
     public void HandlePopComplete()
     {

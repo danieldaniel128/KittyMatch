@@ -347,19 +347,11 @@ PrefabInstance:
       propertyPath: m_SortingLayer
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 3546765254644375807, guid: 71353caab70d57a4b8817a319dcf7c40, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5940014998314407967, guid: 71353caab70d57a4b8817a319dcf7c40, type: 3}
       propertyPath: m_Name
       value: TileIcon
       objectReference: {fileID: 0}
     - target: {fileID: 6109666137647986321, guid: 71353caab70d57a4b8817a319dcf7c40, type: 3}
-      propertyPath: m_SortingLayer
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 7968110259718108101, guid: 71353caab70d57a4b8817a319dcf7c40, type: 3}
       propertyPath: m_SortingLayer
       value: 1
       objectReference: {fileID: 0}

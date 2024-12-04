@@ -49,10 +49,11 @@ public class TileController : MonoBehaviour, ITile, IPointerDownHandler
         _pool = tilePool;
         PooledObject.AttachPool(_pool);
     }
-    public async Task AwaitPop()
+    public async Task AwaitPopIcon()
     {
         if (_tileView.Icon != null)
         {
+            _tileView.HasPopped = true;
             await _tileView.Icon.AwaitPop();
         }
     }
@@ -60,10 +61,6 @@ public class TileController : MonoBehaviour, ITile, IPointerDownHandler
     {
         _tileModel?.ToggleSelection(isSelected);
         _tileView.IsSelected = _tileModel.IsSelected;
-    }
-    public void PopIcon()
-    {
-        _tileView.HasPopped = true;
     }
 
     public string GetModelTileType()

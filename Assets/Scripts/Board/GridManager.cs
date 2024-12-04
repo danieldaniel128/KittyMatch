@@ -5,6 +5,8 @@ using UnityEngine.UI;
 using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine.Pool;
+using System.Text.RegularExpressions;
+using static UnityEditor.Handles;
 
 public class GridManager : MonoBehaviour
 {
@@ -188,29 +190,33 @@ public class GridManager : MonoBehaviour
         do
         {
             _isMatching = true;
+            var popTasks = new List<Task>();
             foreach (Match match in matches)
             {
-                var popTasks = new List<Task>();
                 //match effect
                 foreach (TileController tile in match.Tiles)
                 {
-                    Debug.Log("popped tile");
-                    tile.PopIcon();
-                    popTasks.Add(tile.AwaitPop()); // Await the pop state completion
+                    popTasks.Add(tile.AwaitPopIcon()); // add pop icon action to task list.
                 }
-                await Task.WhenAll(popTasks.ToArray()); // Wait for all pop animations to complete
+            }
+            // Wait for all Pop Icons tasks to complete
+            await Task.WhenAll(popTasks);
+            Debug.Log("pop finished");
+
+            //change icons of matched tiles to empty.
+            foreach (Match match in matches)
                 foreach (TileController tile in match.Tiles)
                 {
                     tile.ChangeIcon(null);
                     tile.Initialize(_emptyTileDataSO);
                 }
-                Debug.Log("pop");
-            }
+            //fill empty tiles in new icons.
             await FillEmptySpaces();
+            //try to get new matches after filling empty tiles.
             matches = _matchHandler.DetectMatches(_tiles, Height);
         }
-        while (matches.Count > 0);
-        _isMatching = false;
+        while (matches.Count > 0);//if got matches, pop and fill empty again.
+        _isMatching = false;// finish matching, no more matches found. reset state to false.
     }
 
     public async Task FillEmptySpaces()

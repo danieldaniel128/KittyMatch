@@ -7,17 +7,17 @@ public class IconPoppedState : IconBaseState
 {
     RawImage _iconIdleImage;
     GameObject _popObjectVFX;
-    ParticleSystem _popVFXSystem;
+    float _deactivateEffectTime;
     Color _breakingVFXColor;
 
     public event System.Action OnPopComplete;
     float _popDuration = 1.0f;
-    public IconPoppedState(RawImage iconIdleImage, GameObject popVFX, ParticleSystem popVFXSystem,Color breakingVFXColor)
+    public IconPoppedState(RawImage iconIdleImage, GameObject popVFX, Color breakingVFXColor, float deactivateEffectTime =0.5f)
     {
         _iconIdleImage = iconIdleImage;
         _popObjectVFX = popVFX;
         _breakingVFXColor = breakingVFXColor;
-        _popVFXSystem = popVFXSystem;
+        _deactivateEffectTime = deactivateEffectTime;
     }
     public override void OnEnter()
     {
@@ -49,7 +49,7 @@ public class IconPoppedState : IconBaseState
     }
     private IEnumerator WaitForPopComplete()
     {
-        yield return new WaitForSeconds(_popVFXSystem.startLifetime);
+        yield return new WaitForSeconds(_deactivateEffectTime);
         Debug.Log("finished popping");
         OnPopComplete?.Invoke(); // Notify that the pop effect is complete
         _iconIdleImage.gameObject.SetActive(false);
