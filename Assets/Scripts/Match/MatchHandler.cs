@@ -12,24 +12,18 @@ public class MatchHandler : MonoBehaviour
         {
             var (h, v) = GetConnections(tile.X, tile.Y, boardTiles);
             var match = new Match(tile, h, v);
-            if(matches != null)
+            // Only consider matches with a valid score.
+            if (match.Score > -1)
             {
-                if (match.Score > -1)
-                {
-                    if(matches.Count ==0)
-                            matches.Add(match);
-                        else if (matches.Count > 0)
-                        {
-                            if (!matches.Any(existingMatch => existingMatch.Tiles.
-                            Count(//count tiles with the same index
-                                t1 => 
-                                match.Tiles.Any(t2 => t1.X == t2.X && t1.Y == t2.Y)//check if there are tiles with the same index
-                            ) >= 2)
-                                )
-                                matches.Add(match);
-                        } 
-                } 
+                // Check if the match is unique
+                bool isUniqueMatch = !matches.Any(existingMatch =>
+                    existingMatch.Tiles.Count(t1 =>
+                        match.Tiles.Any(t2 => t1.X == t2.X && t1.Y == t2.Y)
+                    ) >= 2
+                );
 
+                if (isUniqueMatch)
+                    matches.Add(match);
             }
         }
 

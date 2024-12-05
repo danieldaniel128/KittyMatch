@@ -20,7 +20,6 @@ public class IconIdleState : IconBaseState
     }
     public override void OnExit()
     {
-        Debug.Log("exit idle state");
         _iconIdleImage.gameObject.SetActive(false);
     }
 }

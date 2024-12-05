@@ -82,7 +82,6 @@ public class IconHandler : PooledObject
     private void NotifyPopComplete()
     {
         _popTaskCompletionSource?.TrySetResult(true);
-        Debug.Log("pop completed");
     }
     public void HandlePopComplete()
     {
