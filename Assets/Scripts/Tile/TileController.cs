@@ -49,14 +49,12 @@ public class TileController : MonoBehaviour, ITile, IPointerDownHandler
         _pool = tilePool;
         PooledObject.AttachPool(_pool);
     }
-    public void ActivatePopIcon()
-    {
-        _tileView.HasPopped = true;
-    }
+    
     public async Task AwaitPopIcon()
     {
         if (_tileView.Icon != null)
         {
+            _tileView.HasPopped = true;
             await _tileView.Icon.AwaitPop();
         }
     }

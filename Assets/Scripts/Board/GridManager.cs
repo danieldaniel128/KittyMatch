@@ -207,7 +207,6 @@ public class GridManager : MonoBehaviour
                 {
                     if (poppedTiles.Add(tile)) // Ensure each tile is processed only once
                     {
-                        tile.ActivatePopIcon();//
                         popTasks.Add(tile.AwaitPopIcon());
                     }
                 }
