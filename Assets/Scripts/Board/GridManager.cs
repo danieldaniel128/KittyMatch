@@ -46,13 +46,14 @@ public class GridManager : MonoBehaviour
                 var newTileObject = Instantiate(basicTilePrefab, new Vector3(x, y, _tilesHolder.position.z), Quaternion.identity, _tilesHolder);
                 newTileObject.name = $"Tile({x},{y})";
                 TileController tileComponent = newTileObject.GetComponent<TileController>();
-                TileDataSO tileData;
-                do
-                {
-                    // Randomly select a TileDataSO for this tile
-                    tileData = _tileDataSOs[Random.Range(0, _tileDataSOs.Length)];
-                }
-                while (WouldCauseMatch(x, y, tileData));
+                TileDataSO tileData = _tileDataSOs[Random.Range(0, _tileDataSOs.Length)];
+                if(_tileDataSOs!=null && _tileDataSOs.Length>1)//prevents from the loop to go forever since 1 tiledata will always cause a match.
+                    do
+                    {
+                        // Randomly select a TileDataSO for this tile
+                        tileData = _tileDataSOs[Random.Range(0, _tileDataSOs.Length)];
+                    }
+                    while (WouldCauseMatch(x, y, tileData));
 
                 // Initialize the tile with the properties from the selected TileDataSO
                 tileComponent.Initialize(tileData);
@@ -180,44 +181,60 @@ public class GridManager : MonoBehaviour
         _isSwapping = true;
         await SwapTiles(pos1, pos2);
         _isSwapping = false;
-        var matches = _matchHandler.DetectMatches(_tiles,Height);
+
+        var matches = _matchHandler.DetectMatches(_tiles, Height);
+
+        // Swap back if no matches found
         if (matches.Count == 0)
         {
             _isSwapping = true;
             await SwapTiles(pos1, pos2);
             _isSwapping = false;
+            return; // Exit early as no match was found
         }
+
+        // Process matches until none are left
         do
         {
             _isMatching = true;
+
+            // Pop matched tiles
             var popTasks = new List<Task>();
+            var poppedTiles = new HashSet<TileController>();
             foreach (Match match in matches)
             {
-                //match effect
                 foreach (TileController tile in match.Tiles)
                 {
-                    popTasks.Add(tile.AwaitPopIcon()); // add pop icon action to task list.
+                    if (poppedTiles.Add(tile)) // Ensure each tile is processed only once
+                    {
+                        tile.ActivatePopIcon();//
+                        popTasks.Add(tile.AwaitPopIcon());
+                    }
                 }
             }
-            // Wait for all Pop Icons tasks to complete
-            await Task.WhenAll(popTasks);
-            Debug.Log("pop finished");
+            //await Task.WhenAll(popTasks); // Wait for all pops to complete (optional)
+            Debug.Log("Pop finished");
 
-            //change icons of matched tiles to empty.
-            foreach (Match match in matches)
-                foreach (TileController tile in match.Tiles)
-                {
-                    tile.ChangeIcon(null);
-                    tile.Initialize(_emptyTileDataSO);
-                }
-            //fill empty tiles in new icons.
+            // Clear icons for matched tiles (use the same poppedTiles set)
+            foreach (var tile in poppedTiles)
+            {
+                tile.ChangeIcon(null);
+                tile.Initialize(_emptyTileDataSO);
+            }
+
+            // Fill empty spaces
             await FillEmptySpaces();
-            //try to get new matches after filling empty tiles.
+
+            // Detect new matches
             matches = _matchHandler.DetectMatches(_tiles, Height);
         }
-        while (matches.Count > 0);//if got matches, pop and fill empty again.
-        _isMatching = false;// finish matching, no more matches found. reset state to false.
+        while (matches.Count > 0);
+
+
+        _isMatching = false; // Reset state
     }
+
+
 
     public async Task FillEmptySpaces()
     {
@@ -226,73 +243,106 @@ public class GridManager : MonoBehaviour
 
         for (int x = 0; x < Width; x++) // Process each column individually
         {
-            for (int y = Height - 1; y >= 0; y--) // Start from the bottom row and move up
+            ProcessColumn(x, sequence, fellTiles);
+        }
+
+        // Play the sequence and wait for it to complete
+        await sequence.Play().AsyncWaitForCompletion();
+
+        // Reconnect icons to their parents
+        ReconnectFellTiles(fellTiles);
+    }
+
+    private void ProcessColumn(int x, Sequence sequence, List<TileController> fellTiles)
+    {
+        for (int y = Height - 1; y >= 0; y--) // Start from the bottom row and move up
+        {
+            TileController emptyTile = GetTileAt(x, y);
+
+            if (IsEmptyTile(emptyTile))
             {
-                TileController emptyTile = GetTileAt(x, y);
-                if (emptyTile.GetModelTileType().Equals(_emptyTileDataSO.TileType))
+                if (!TryFillWithFallingTile(x, y, sequence, fellTiles))
                 {
-                    bool filled = false;
-
-                    for (int aboveY = y - 1; aboveY >= 0; aboveY--) // Look for the first non-empty tile above
-                    {
-                        TileController fallingTile = GetTileAt(x, aboveY);
-                        if (!fallingTile.GetModelTileType().Equals(_emptyTileDataSO.TileType))
-                        {
-                            // Calculate the duration based on the distance
-                            float distance = y - aboveY;
-                            float fallDuration = Mathf.Lerp(0.3f, 0.6f, distance / Height); // Adjust range as needed
-
-                            // Move the tile down
-                            Vector3 emptyTileWorldPos = emptyTile.transform.position;
-
-                            fallingTile.GetIcon().transform.SetParent(_overlappingParent);
-                            sequence.Join(fallingTile.GetIcon().transform.transform.DOMove(emptyTileWorldPos, fallDuration).SetEase(Ease.InCubic));
-
-                            // Update tile references
-                            emptyTile.ChangeIcon(fallingTile.GetIcon());
-                            emptyTile.Initialize(_tileDataSOs.FirstOrDefault(c => c.TileType.Equals(fallingTile.GetModelTileType())));
-                            fallingTile.Initialize(_emptyTileDataSO);
-                            fallingTile.ChangeIcon(null);
-
-                            fellTiles.Add(emptyTile);
-                            filled = true;
-
-                            break;
-                        }
-                    }
-
-                    // If the tile wasn't filled by falling tiles, create a new one from the pool
-                    if (!filled)
-                    {
-                        var pooledIcon = _tilesPool.GetPooledObject(); // Get a new icon from the pool
-                        pooledIcon.transform.SetParent(_overlappingParent);
-                        pooledIcon.transform.position = new Vector3(emptyTile.transform.position.x, _tileGrid[0,0].transform.position.y+1, emptyTile.transform.position.z); // Start above the grid
-
-                        // Select a random TileDataSO for the new tile
-                        TileDataSO tileData = _tileDataSOs[Random.Range(0, _tileDataSOs.Length)];
-
-                        // Animate the new tile falling into place
-                        Vector3 targetPosition = emptyTile.transform.position;
-                        sequence.Join(pooledIcon.transform.DOMove(targetPosition, 0.6f).SetEase(Ease.InCubic));
-
-                        // Update tile references
-                        emptyTile.ChangeIcon(pooledIcon as IconHandler);
-                        emptyTile.Initialize(tileData);
-
-                        fellTiles.Add(emptyTile);
-                    }
+                    CreateNewTileAt(x, y, sequence, fellTiles);
                 }
             }
         }
+    }
 
-        await sequence.Play().AsyncWaitForCompletion();
+    private bool IsEmptyTile(TileController tile)
+    {
+        return tile.GetModelTileType().Equals(_emptyTileDataSO.TileType);
+    }
 
-        foreach (var felledTile in fellTiles)
+    private bool TryFillWithFallingTile(int x, int y, Sequence sequence, List<TileController> fellTiles)
+    {
+        for (int aboveY = y - 1; aboveY >= 0; aboveY--) // Look for the first non-empty tile above
         {
-            if (felledTile.GetIcon().transform != null)
-                felledTile.ConnectIconToParent();
+            TileController fallingTile = GetTileAt(x, aboveY);
+
+            if (!IsEmptyTile(fallingTile))
+            {
+                MoveTileDown(fallingTile, GetTileAt(x, y), sequence, fellTiles);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void MoveTileDown(TileController fallingTile, TileController emptyTile, Sequence sequence, List<TileController> fellTiles)
+    {
+        float distance = emptyTile.Y - fallingTile.Y;
+        float fallDuration = Mathf.Lerp(0.3f, 0.6f, distance / Height); // Adjust range as needed
+
+        // Move the tile down
+        Vector3 emptyTileWorldPos = emptyTile.transform.position;
+
+        fallingTile.GetIcon().transform.SetParent(_overlappingParent);
+        sequence.Join(fallingTile.GetIcon().transform.DOMove(emptyTileWorldPos, fallDuration).SetEase(Ease.InCubic));
+
+        // Update tile references
+        emptyTile.ChangeIcon(fallingTile.GetIcon());
+        emptyTile.Initialize(_tileDataSOs.FirstOrDefault(c => c.TileType.Equals(fallingTile.GetModelTileType())));
+        fallingTile.Initialize(_emptyTileDataSO);
+        fallingTile.ChangeIcon(null);
+
+        fellTiles.Add(emptyTile);
+    }
+
+    private void CreateNewTileAt(int x, int y, Sequence sequence, List<TileController> fellTiles)
+    {
+        TileController emptyTile = GetTileAt(x, y);
+
+        // Get a new icon from the pool
+        var pooledIcon = _tilesPool.GetPooledObject();
+        pooledIcon.transform.SetParent(_overlappingParent);
+        pooledIcon.transform.position = new Vector3(emptyTile.transform.position.x, _tileGrid[0, 0].transform.position.y + 1, emptyTile.transform.position.z); // Start above the grid
+
+        // Select a random TileDataSO for the new tile
+        TileDataSO tileData = _tileDataSOs[Random.Range(0, _tileDataSOs.Length)];
+        
+        // Animate the new tile falling into place
+        Vector3 targetPosition = emptyTile.transform.position;
+        sequence.Join(pooledIcon.transform.DOMove(targetPosition, 0.6f).SetEase(Ease.InCubic));
+
+        // Update tile references
+        emptyTile.ChangeIcon(pooledIcon as IconHandler);
+        emptyTile.Initialize(tileData);
+
+        fellTiles.Add(emptyTile);
+    }
+
+    private void ReconnectFellTiles(List<TileController> fellTiles)
+    {
+        foreach (var tile in fellTiles)
+        {
+            if (tile.GetIcon().transform != null)
+            {
+                tile.ConnectIconToParent();
+            }
         }
     }
+
 
 
 }

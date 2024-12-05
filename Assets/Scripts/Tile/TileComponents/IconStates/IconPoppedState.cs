@@ -23,7 +23,6 @@ public class IconPoppedState : IconBaseState
     {
         _iconIdleImage.gameObject.SetActive(true);
         _iconIdleImage.enabled = false;
-        Debug.Log(_breakingVFXColor);
         foreach(Transform VFXSystem in _popObjectVFX.transform)
         {
             ParticleSystem.MainModule main = VFXSystem.GetComponent<ParticleSystem>().main;
@@ -50,7 +49,6 @@ public class IconPoppedState : IconBaseState
     private IEnumerator WaitForPopComplete()
     {
         yield return new WaitForSeconds(_deactivateEffectTime);
-        Debug.Log("finished popping");
         OnPopComplete?.Invoke(); // Notify that the pop effect is complete
         _iconIdleImage.gameObject.SetActive(false);
         _iconIdleImage.enabled = true;
