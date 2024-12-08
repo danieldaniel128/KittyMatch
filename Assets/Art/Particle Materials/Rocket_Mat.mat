@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Explosion_Mat
+  m_Name: Rocket_Mat
   m_Shader: {fileID: 4800000, guid: e260cfa7296ee7642b167f1eb5be5023, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -28,15 +28,15 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 5806c498dba013d4785b64f011a6661f, type: 3}
+        m_Texture: {fileID: 2800000, guid: 7375446e61ea21740bfebb63ebe4f801, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MaskTex:
-        m_Texture: {fileID: 2800000, guid: 5806c498dba013d4785b64f011a6661f, type: 3}
+        m_Texture: {fileID: 2800000, guid: 7375446e61ea21740bfebb63ebe4f801, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _NormalMap:
-        m_Texture: {fileID: 2800000, guid: 5806c498dba013d4785b64f011a6661f, type: 3}
+        m_Texture: {fileID: 2800000, guid: 7375446e61ea21740bfebb63ebe4f801, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Ints: []
