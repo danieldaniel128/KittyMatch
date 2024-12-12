@@ -4,14 +4,12 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Linq;
 using System.Threading.Tasks;
-using UnityEngine.Pool;
-using System.Text.RegularExpressions;
-using static UnityEditor.Handles;
 
 public class GridManager : MonoBehaviour
 {
     public int Width;
     public int Height;
+    public Vector2Int GridSize => new Vector2Int(Width, Height);
     public GameObject basicTilePrefab;
     [SerializeField] private SwipeInputHandler _swipeInputHandler;
     [SerializeField] private Transform _overlappingParent;
@@ -20,8 +18,7 @@ public class GridManager : MonoBehaviour
     [SerializeField] private MatchHandler _matchHandler;
     [SerializeField] private TileDataSO[] _tileDataSOs;
     [SerializeField] private TileDataSO _emptyTileDataSO;
-    private List<TileController> _tiles;
-    private TileController[,] _tileGrid;
+    private Dictionary<Vector2Int,TileController> _tilesDictionary;
 
     private TileController _firstSelectedTile = null;
 
@@ -37,8 +34,7 @@ public class GridManager : MonoBehaviour
 
     private void InitializeGrid()
     {
-        _tiles = new List<TileController>();
-        _tileGrid = new TileController[Width, Height];
+        _tilesDictionary = new Dictionary<Vector2Int, TileController>();
         for (int y = 0; y < Height; y++)
         {
             for (int x = 0; x < Width; x++)
@@ -63,9 +59,8 @@ public class GridManager : MonoBehaviour
                 //set index for each created tile.
                 tileComponent.SetTileIndex(x, y);
                 //add to list of tiles.
-                _tiles.Add(tileComponent);
+                _tilesDictionary.Add(new Vector2Int(x,y),tileComponent);
                 //add to grid of tiles.
-                _tileGrid[x, y] = tileComponent;
             }
         }
     }
@@ -76,24 +71,24 @@ public class GridManager : MonoBehaviour
     {
         // Check for horizontal match
         if (x >= 2 &&
-            _tileGrid[x - 1, y].GetModelTileType().Equals(tileData.TileType) &&
-            _tileGrid[x - 2, y].GetModelTileType().Equals(tileData.TileType))
+            _tilesDictionary[new Vector2Int(x - 1,y)].GetModelTileType().Equals(tileData.TileType) &&
+            _tilesDictionary[new Vector2Int(x - 2, y)].GetModelTileType().Equals(tileData.TileType))
         {
             return true;
         }
 
         // Check for vertical match
         if (y >= 2 &&
-            _tileGrid[x, y - 1].GetModelTileType().Equals(tileData.TileType) &&
-            _tileGrid[x, y - 2].GetModelTileType().Equals(tileData.TileType))
+            _tilesDictionary[new Vector2Int(x, y - 1)].GetModelTileType().Equals(tileData.TileType) &&
+            _tilesDictionary[new Vector2Int(x, y - 2)].GetModelTileType().Equals(tileData.TileType))
         {
             return true;
         }
 
         return false;
     }
-    public TileController GetTileAt(int x, int y) { Vector2Int tileIndex = new Vector2Int(x, y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
-    public TileController GetTileAt(Vector2Int tileIndexSearch) { Vector2Int tileIndex = new Vector2Int(tileIndexSearch.x, tileIndexSearch.y); return _tiles.Find(tile => tile.TileIndex == tileIndex); }
+    public TileController GetTileAt(int x, int y) => _tilesDictionary[new Vector2Int(x, y)];
+    public TileController GetTileAt(Vector2Int tileIndexSearch) => _tilesDictionary[tileIndexSearch];
     private void HandleTileSwipe(Vector2Int swipeDirection)
     {
         //Calculate positions of both tiles
@@ -181,8 +176,8 @@ public class GridManager : MonoBehaviour
         _isSwapping = true;
         await SwapTiles(pos1, pos2);
         _isSwapping = false;
-
-        var matches = _matchHandler.DetectMatches(_tiles, Height);
+        Debug.Log(_tilesDictionary);
+        var matches = _matchHandler.DetectMatches(_tilesDictionary, Width,Height);
 
         // Swap back if no matches found
         if (matches.Count == 0)
@@ -225,7 +220,7 @@ public class GridManager : MonoBehaviour
             await FillEmptySpaces();
 
             // Detect new matches
-            matches = _matchHandler.DetectMatches(_tiles, Height);
+            matches = _matchHandler.DetectMatches(_tilesDictionary, Width, Height);
         }
         while (matches.Count > 0);
 
@@ -315,7 +310,7 @@ public class GridManager : MonoBehaviour
         // Get a new icon from the pool
         var pooledIcon = _tilesPool.GetPooledObject();
         pooledIcon.transform.SetParent(_overlappingParent);
-        pooledIcon.transform.position = new Vector3(emptyTile.transform.position.x, _tileGrid[0, 0].transform.position.y + 1, emptyTile.transform.position.z); // Start above the grid
+        pooledIcon.transform.position = new Vector3(emptyTile.transform.position.x, GetTileAt(0,0).transform.position.y + 1, emptyTile.transform.position.z); // Start above the grid
 
         // Select a random TileDataSO for the new tile
         TileDataSO tileData = _tileDataSOs[Random.Range(0, _tileDataSOs.Length)];

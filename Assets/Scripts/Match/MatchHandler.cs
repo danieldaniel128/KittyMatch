@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEngine.Rendering.DebugUI;
 
 public class MatchHandler : MonoBehaviour
 {
-    public List<Match> DetectMatches(List<TileController> boardTiles, int boardHeight)
+    public List<Match> DetectMatches(Dictionary<Vector2Int, TileController> boardTiles,int boardWidth, int boardHeight)
     {
 
         var matches = new List<Match>();
         foreach (var tile in boardTiles)
         {
-            var (h, v) = GetConnections(tile.X, tile.Y, boardTiles);
-            var match = new Match(tile, h, v);
+            var (h, v) = GetConnections(tile.Key, boardTiles);
+            var match = new Match(tile.Value, h, v);
             // Only consider matches with a valid score.
             if (match.Score > -1)
             {
@@ -30,47 +31,43 @@ public class MatchHandler : MonoBehaviour
         return matches;
     }
 
-    public static (TileController[], TileController[]) GetConnections(int originX, int originY, List<TileController> tiles)
+    public static (TileController[], TileController[]) GetConnections(Vector2Int originIndex, Dictionary<Vector2Int, TileController> tiles)
     {
         // Find the origin tile in the list based on its X and Y coordinates.
-        var origin = tiles.FirstOrDefault(tile => tile.X == originX && tile.Y == originY);
+        var origin = tiles[originIndex];
         if (origin == null || origin.GetModelTileType().Equals("EmptyRendered")) return (new TileController[0], new TileController[0]);
 
         var horizontalConnections = new List<TileController>();
         var verticalConnections = new List<TileController>();
 
+        TileController other = null;
         // Horizontal connections to the left
-        for (var x = originX - 1; x >= 0; x--)
+        for (var x = originIndex.x - 1; x >= 0; x--)
         {
-            var other = tiles.FirstOrDefault(tile => tile.X == x && tile.Y == originY);
-            if (other == null || !other.GetModelTileType().Equals(origin.GetModelTileType())) break;
+            if (!tiles.TryGetValue(new Vector2Int(x, originIndex.y), out other) || !other.GetModelTileType().Equals(origin.GetModelTileType())) break;
             horizontalConnections.Add(other);
         }
 
         // Horizontal connections to the right
-        for (var x = originX + 1; x < int.MaxValue; x++) // Remove int.MaxValue limitation if unnecessary
+        for (var x = originIndex.x + 1; x < int.MaxValue; x++) // Remove int.MaxValue limitation if unnecessary
         {
-            var other = tiles.FirstOrDefault(tile => tile.X == x && tile.Y == originY);
-            if (other == null || !other.GetModelTileType().Equals(origin.GetModelTileType())) break;
-            horizontalConnections.Add(other);
+            if (!tiles.TryGetValue(new Vector2Int(x,originIndex.y), out other) || !other.GetModelTileType().Equals(origin.GetModelTileType())) break;
+                horizontalConnections.Add(other);
         }
 
         // Vertical connections upwards
-        for (var y = originY - 1; y >= 0; y--)
+        for (var y = originIndex.y - 1; y >= 0; y--)
         {
-            var other = tiles.FirstOrDefault(tile => tile.X == originX && tile.Y == y);
-            if (other == null || !other.GetModelTileType().Equals(origin.GetModelTileType())) break;
-            verticalConnections.Add(other);
+            if (!tiles.TryGetValue(new Vector2Int(originIndex.x, y),out other) || !other.GetModelTileType().Equals(origin.GetModelTileType())) break;
+                verticalConnections.Add(other);
         }
 
         // Vertical connections downwards
-        for (var y = originY + 1; y < int.MaxValue; y++) // Remove int.MaxValue limitation if unnecessary
+        for (var y = originIndex.y + 1; y < int.MaxValue; y++) // Remove int.MaxValue limitation if unnecessary
         {
-            var other = tiles.FirstOrDefault(tile => tile.X == originX && tile.Y == y);
-            if (other == null || !other.GetModelTileType().Equals(origin.GetModelTileType())) break;
-            verticalConnections.Add(other);
+            if (!tiles.TryGetValue(new Vector2Int(originIndex.x, y), out other) || !other.GetModelTileType().Equals(origin.GetModelTileType())) break;
+                verticalConnections.Add(other);
         }
-
         return (horizontalConnections.ToArray(), verticalConnections.ToArray());
     }
 
