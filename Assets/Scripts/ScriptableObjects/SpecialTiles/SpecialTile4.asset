@@ -9,10 +9,12 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 709c5b7c34b6c0a4cac4ede7d3fd88bd, type: 3}
-  m_Name: BasicTile6
+  m_Script: {fileID: 11500000, guid: 026da32b447e16b449c4dacedd6bc5c1, type: 3}
+  m_Name: SpecialTile4
   m_EditorClassIdentifier: 
-  TileName: Ball
-  TileType: Ball
-  TileIcon: {fileID: 2800000, guid: 68c548174c98a464b96a8a7789fb545b, type: 3}
+  TileName: 4Column
+  TileType: 4Column
+  TileIcon: {fileID: 2800000, guid: 44406c9d8bb589744bb0eb5a871772c6, type: 3}
   IsRenderered: 1
+  Color: {r: 1, g: 1, b: 1, a: 1}
+  SpecialMatchType: 1

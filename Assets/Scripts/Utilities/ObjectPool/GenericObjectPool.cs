@@ -9,7 +9,7 @@ public class GenericObjectPool<T> : MonoBehaviour where T : MonoBehaviour
 
     // Prefab of the object to pool
     [SerializeField] private T objectToPool;
-    [SerializeField] List<T> objectsToPool;
+    [SerializeField] protected List<T> objectsToPool;
 
     private void Start()
     {
@@ -32,6 +32,7 @@ public class GenericObjectPool<T> : MonoBehaviour where T : MonoBehaviour
         {
             T instance = Instantiate(objectToPool,transform);
             instance.gameObject.SetActive(false);
+            instance.GetComponent<PooledObject>().AttachPool(this as TilePool);
             objectsToPool.Add(instance);
         }
     }
@@ -50,11 +51,10 @@ public class GenericObjectPool<T> : MonoBehaviour where T : MonoBehaviour
             {
                 instance.gameObject.SetActive(true);
                 objectsToPool.Remove(instance);
-                Debug.Log("removed from pool");
                 return instance;
             }
-        Debug.Log("new pool item");
         T newInstance = Instantiate(objectToPool, transform);
+        newInstance.GetComponent<PooledObject>().AttachPool(this as TilePool);
         return newInstance;
     }
 
@@ -63,7 +63,6 @@ public class GenericObjectPool<T> : MonoBehaviour where T : MonoBehaviour
     {
         pooledObject.transform.SetParent(transform);
         pooledObject.gameObject.SetActive(false);
-        Debug.Log("return to pool");
         objectsToPool.Add(pooledObject);
     }
 }

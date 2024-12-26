@@ -10,9 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 709c5b7c34b6c0a4cac4ede7d3fd88bd, type: 3}
-  m_Name: BasicTile2
+  m_Name: BasicTile4
   m_EditorClassIdentifier: 
-  TileName: Fish
-  TileType: Fish
-  TileIcon: {fileID: 2800000, guid: a37bae76dd5370043a9aa073e40585b4, type: 3}
+  TileName: Mouse
+  TileType: Mouse
+  TileIcon: {fileID: 2800000, guid: 8b1db2a80cc03d24585c5c1a2099e541, type: 3}
   IsRenderered: 1
+  Color: {r: 0.25553855, g: 0.21069163, b: 1, a: 0.79607844}

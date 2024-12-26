@@ -1,4 +1,5 @@
 ﻿using Assets.Scripts.Tile;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -41,18 +42,28 @@ public class TileController : MonoBehaviour, ITile, IPointerDownHandler
         _tileDataSO = tileDataSO;
         _tileModel = new TileModel(tileDataSO);
         // Initializing the view based on model's data
-        _tileView.SetNewTileIcon(_tileModel.TileData.TileIcon);
+        _tileView.SetNewTileIcon(_tileModel.TileData.TileIcon, _tileModel.TileData.Color);
     }
     public void AttachPool(TilePool tilePool)
     {
         _pool = tilePool;
+        PooledObject.AttachPool(_pool);
+    }
+    
+    public async Task AwaitPopIcon()
+    {
+        if (_tileView.Icon != null)
+        {
+            _tileView.HasPopped = true;
+            await _tileView.Icon.AwaitPop();
+        }
     }
     void ToggleSelection(bool isSelected)
     {
         _tileModel?.ToggleSelection(isSelected);
-        _tileView?.UpdateSelectedVFXState(_tileModel.IsSelected);
+        _tileView.IsSelected = _tileModel.IsSelected;
     }
-    
+
     public string GetModelTileType()
     {
        return _tileModel.GetTileType();
@@ -66,7 +77,7 @@ public class TileController : MonoBehaviour, ITile, IPointerDownHandler
     {
         TileIndex = newTileIndex;
     }
-    public Transform GetIconTransform()
+    public IconHandler GetIcon()
     {
         return _tileView.Icon;
     }
@@ -74,7 +85,7 @@ public class TileController : MonoBehaviour, ITile, IPointerDownHandler
     {
         _tileView.ConnectIconToParent();
     }
-    public void ChangeIcon(Transform newIcon)
+    public void ChangeIcon(IconHandler newIcon)
     {
         _tileView.ChangeIcon(newIcon);
         if(newIcon!=null)

@@ -7,7 +7,7 @@ public class TileDataSO : ScriptableObject
     public string TileType;
     public Texture2D TileIcon;
     public bool IsRenderered;
-
+    public Color Color;
     // Additional properties for special effects or scoring could be added here
 }
 
