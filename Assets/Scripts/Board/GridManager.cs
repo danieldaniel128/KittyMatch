@@ -206,7 +206,7 @@ public class GridManager : MonoBehaviour
         //there is a match.
         _isMatching = true;
         //update grid after first match.
-        GridUpdateAfterSwap(tile1, tile2, matches);
+        await GridUpdateAfterSwap(tile1, tile2, matches);
         List<TileController> fellTiles = new List<TileController>();
         fellTiles.Clear();
         await FillEmptySpaces(fellTiles);
@@ -215,7 +215,7 @@ public class GridManager : MonoBehaviour
         // Process matches until none are left
         do
         {
-            GridUpdateAfterFallingTiles(matches, fellTiles);
+            await GridUpdateAfterFallingTiles(matches, fellTiles);
             fellTiles.Clear();
             await FillEmptySpaces(fellTiles);
             matches = _matchHandler.DetectMatches(_tilesDictionary, Width, Height);
@@ -223,7 +223,7 @@ public class GridManager : MonoBehaviour
         while (matches.Count > 0);
         _isMatching = false;
     }
-    private void GridUpdateAfterFallingTiles(List<Match> matches,List<TileController> fellTiles)
+    private async Task GridUpdateAfterFallingTiles(List<Match> matches,List<TileController> fellTiles)
     {
         // Pop matched tiles
         var popTasks = new List<Task>();
@@ -254,7 +254,7 @@ public class GridManager : MonoBehaviour
                     }
             }
         }
-        //await Task.WhenAll(popTasks); // Wait for all pops to complete (optional)
+        await Task.WhenAll(popTasks); // Wait for all pops to complete (optional)
         Debug.Log("Pop finished");
 
         // Clear icons for matched tiles (use the same poppedTiles set)
@@ -264,7 +264,7 @@ public class GridManager : MonoBehaviour
             tile.Initialize(_emptyTileDataSO);
         }
     }
-    private void GridUpdateAfterSwap(TileController tile1, TileController tile2, List<Match> matches)
+    private async Task GridUpdateAfterSwap(TileController tile1, TileController tile2, List<Match> matches)
     {
         List<TileController> fellTiles = new List<TileController>();
         // Pop matched tiles
@@ -283,11 +283,17 @@ public class GridManager : MonoBehaviour
                 else if (poppedTiles.Add(tile)) // Ensure each tile is processed only once
                 {
                     popTasks.Add(tile.AwaitPopIcon());
+                if(tile.GetModelTileType().Equals("4Column"))
+                    if(poppedTiles.Add(tile)) // Ensure each tile is processed only once
+                    {
+                        foreach(var tileincol in _tilesDictionary.Where(c => c.Key.x == tile.X))
+                            popTasks.Add(GetTileAt(tileincol.Key).AwaitPopIcon());
+                    }
                 }
             }
         }
         fellTiles.Clear();
-        //await Task.WhenAll(popTasks); // Wait for all pops to complete (optional)
+        await Task.WhenAll(popTasks); // Wait for all pops to complete (optional)
         Debug.Log("Pop finished");
 
         // Clear icons for matched tiles (use the same poppedTiles set)
