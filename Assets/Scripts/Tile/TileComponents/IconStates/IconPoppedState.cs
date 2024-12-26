@@ -54,7 +54,10 @@ public class IconPoppedState : IconBaseState
     }
     private IEnumerator WaitForPopComplete()
     {
-        yield return new WaitForSeconds(_deactivateEffectTime);
+        if (!_icon.IsSpecial)
+            yield return new WaitForSeconds(_deactivateEffectTime);
+        else
+            yield return new WaitForSeconds(_deactivateEffectTime*2);
         OnPopComplete?.Invoke(); // Notify that the pop effect is complete
         _iconIdleImage.gameObject.SetActive(false);
         _iconIdleImage.enabled = true;

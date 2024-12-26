@@ -228,16 +228,25 @@ public class GridManager : MonoBehaviour
         // Pop matched tiles
         var popTasks = new List<Task>();
         var poppedTiles = new HashSet<TileController>();
+        // Track matches that already had a special tile assigned
+        var processedMatches = new HashSet<Match>();
         foreach (Match match in matches)
         {
             // Check if the match is special
             foreach (TileController tile in match.Tiles)
             {
                 if(fellTiles != null)
-                    if (match.IsSpecial && fellTiles.FirstOrDefault(c=>c==tile)!=null)//is special and one of the falling tiles is in the special match
+                    if ( match.IsSpecial && !processedMatches.Contains(match))//is special and one of the falling tiles is in the special match
                     {
-                        // Assign a special icon to the fell tile icon in the match as the matching ancor.
-                        AssignSpecialTile(tile, match);
+                        // Find the first tile from the falling tiles that is part of the current match
+                        TileController firstFellTileInMatch = fellTiles.FirstOrDefault(c => match.Tiles.Contains(c));
+
+                        if (firstFellTileInMatch != null)
+                        {
+                            // Assign a special icon to this tile and mark the match as processed
+                            AssignSpecialTile(firstFellTileInMatch, match);
+                            processedMatches.Add(match); // Ensure only one special tile per match
+                        }
                     }
                     else if (poppedTiles.Add(tile)) // Ensure each tile is processed only once
                     {

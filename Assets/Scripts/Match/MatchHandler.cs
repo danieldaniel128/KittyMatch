@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text.RegularExpressions;
 using Unity.VisualScripting;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using static UnityEngine.Rendering.DebugUI;
 
@@ -73,33 +74,65 @@ public class MatchHandler : MonoBehaviour
         // Horizontal connections to the left
         for (var x = originIndex.x - 1; x >= 0; x--)
         {
-            if (!tiles.TryGetValue(new Vector2Int(x, originIndex.y), out other) || !other.GetModelTileType().Equals(origin.GetModelTileType())) break;
-            horizontalConnections.Add(other);
+            if (!tiles.TryGetValue(new Vector2Int(x, originIndex.y), out other)) break;//null
+            if (IsTileDataIsSpecial(other) || other.GetModelTileType().Equals(origin.GetModelTileType()))//is not special or not equal
+                horizontalConnections.Add(other);
+            else break;
+            //(there is no tile to left, or he is not the same type) is not special
         }
 
         // Horizontal connections to the right
         for (var x = originIndex.x + 1; x < int.MaxValue; x++) // Remove int.MaxValue limitation if unnecessary
         {
-            if (!tiles.TryGetValue(new Vector2Int(x,originIndex.y), out other) || !other.GetModelTileType().Equals(origin.GetModelTileType())) break;
+            if(!tiles.TryGetValue(new Vector2Int(x, originIndex.y), out other)) break;
+            if (IsTileDataIsSpecial(other) || other.GetModelTileType().Equals(origin.GetModelTileType()))
                 horizontalConnections.Add(other);
+            else break;
         }
 
         // Vertical connections upwards
         for (var y = originIndex.y - 1; y >= 0; y--)
         {
-            if (!tiles.TryGetValue(new Vector2Int(originIndex.x, y),out other) || !other.GetModelTileType().Equals(origin.GetModelTileType())) break;
+            if (!tiles.TryGetValue(new Vector2Int(originIndex.x, y), out other)) break;
+            if (IsTileDataIsSpecial(other) || other.GetModelTileType().Equals(origin.GetModelTileType()))
                 verticalConnections.Add(other);
+            else break;
         }
 
         // Vertical connections downwards
         for (var y = originIndex.y + 1; y < int.MaxValue; y++) // Remove int.MaxValue limitation if unnecessary
         {
-            if (!tiles.TryGetValue(new Vector2Int(originIndex.x, y), out other) || !other.GetModelTileType().Equals(origin.GetModelTileType())) break;
+            if (!tiles.TryGetValue(new Vector2Int(originIndex.x, y), out other)) break;
+            if (IsTileDataIsSpecial(other) || other.GetModelTileType().Equals(origin.GetModelTileType()))
                 verticalConnections.Add(other);
+            else break;
         }
         return (horizontalConnections, verticalConnections);
     }
-
+    public static bool IsTileDataIsSpecial(TileController tile)
+    {
+        bool isSpecialData = true;    
+        switch (tile.GetModelTileType())
+        {
+            case "TShape":
+                // code block
+                break;
+            case "AllColors":
+                // code block
+                break;
+            case "4Row":
+                // code block
+                break;
+            case "4Column":
+                // code block
+                break;
+            default://not special
+                // code block
+                isSpecialData = false;
+                break;
+        }
+        return isSpecialData;
+    }
 }
 public class Match
 {
