@@ -1,41 +1,70 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
+using Unity.VisualScripting;
 using UnityEngine;
 using static UnityEngine.Rendering.DebugUI;
 
 public class MatchHandler : MonoBehaviour
 {
-    public List<Match> DetectMatches(Dictionary<Vector2Int, TileController> boardTiles,int boardWidth, int boardHeight)
+    public List<Match> DetectMatches(Dictionary<Vector2Int, TileController> boardTiles, int boardWidth, int boardHeight)
     {
 
         var matches = new List<Match>();
         foreach (var tile in boardTiles)
         {
             var (h, v) = GetConnections(tile.Key, boardTiles);
-            var match = new Match(tile.Value, h, v);
+            var match = new Match(tile.Value, h.Cast<ITile>().ToList(), v.Cast<ITile>().ToList());
             // Only consider matches with a valid score.
             if (match.Score > -1)
             {
-                // Check if the match is unique
-                bool isUniqueMatch = !matches.Any(existingMatch =>
-                    existingMatch.Tiles.Count(t1 =>
-                        match.Tiles.Any(t2 => t1.X == t2.X && t1.Y == t2.Y)
-                    ) >= 2
-                );
+                if ((h.Count >= 2 || v.Count >= 2))
+                {
+                    bool hasAppeared = false;
+                    foreach (var addedMatch in matches)
+                    {
+                        foreach (var addedTile in addedMatch.Tiles)
+                        {
+                            if (match.Tiles.Count(c => c.TileIndex == addedTile.TileIndex) >= 2)
+                                hasAppeared = true;
+                        }
 
-                if (isUniqueMatch)
-                    matches.Add(match);
+                    }
+                    if(!hasAppeared)
+                        matches.Add(match);
+                }
             }
         }
-
+        var LShapedMatches = matches.Where(c => c.HorizontalCount >= 3 && c.VerticalCount >= 3).ToList();
+        var everyOtherMatch = matches.Where(c => !(c.HorizontalCount >= 3 && c.VerticalCount >= 3)).ToList();
+        foreach (var LShapedMatch in LShapedMatches) 
+        {
+            bool hasRemovedOverlappedLMatch=false;
+            foreach(var otherMatch in everyOtherMatch)
+            {
+                foreach (var tile in otherMatch.Tiles)
+                {
+                    if (LShapedMatch.Tiles.Where(c => c.TileIndex == tile.TileIndex).ToList().Count == 1)
+                    {
+                        matches.Remove(otherMatch);
+                        hasRemovedOverlappedLMatch = true;
+                        continue;
+                    }
+                }
+                if(hasRemovedOverlappedLMatch)
+                    continue;
+            }
+        }
         return matches;
     }
 
-    public static (TileController[], TileController[]) GetConnections(Vector2Int originIndex, Dictionary<Vector2Int, TileController> tiles)
+
+
+    public static (List<TileController>, List<TileController>) GetConnections(Vector2Int originIndex, Dictionary<Vector2Int, TileController> tiles)
     {
         // Find the origin tile in the list based on its X and Y coordinates.
         var origin = tiles[originIndex];
-        if (origin == null || origin.GetModelTileType().Equals("EmptyRendered")) return (new TileController[0], new TileController[0]);
+        if (origin == null || origin.GetModelTileType().Equals("EmptyRendered")) return (new List<TileController>(), new List<TileController>());
 
         var horizontalConnections = new List<TileController>();
         var verticalConnections = new List<TileController>();
@@ -68,50 +97,92 @@ public class MatchHandler : MonoBehaviour
             if (!tiles.TryGetValue(new Vector2Int(originIndex.x, y), out other) || !other.GetModelTileType().Equals(origin.GetModelTileType())) break;
                 verticalConnections.Add(other);
         }
-        return (horizontalConnections.ToArray(), verticalConnections.ToArray());
+        return (horizontalConnections, verticalConnections);
     }
 
 }
 public class Match
 {
     public readonly string TileType;
-
     public readonly int Score;
 
-    public readonly ITile[] Tiles;
+    public readonly List<ITile> Tiles;
+    public SpecialMatch MatchType { get; private set; }
+    public readonly int HorizontalCount;
+    public readonly int VerticalCount;
 
-    public Match(ITile origin, ITile[] horizontal, ITile[] vertical)
+
+    public Match(ITile origin, List<ITile> horizontal, List<ITile> vertical)
     {
         TileType = ((TileController)origin).GetModelTileType();
 
-        if (horizontal.Length >= 2 && vertical.Length >= 2)
+        Tiles = new List<ITile> { origin }; // Initialize the list with the origin tile
+
+        // Add horizontal and vertical tiles if they meet the minimum count
+        if (horizontal.Count >= 2)
         {
-            Tiles = new ITile[horizontal.Length + vertical.Length + 1];
-
-            Tiles[0] = origin;
-
-            horizontal.CopyTo(Tiles, 1);
-
-            vertical.CopyTo(Tiles, horizontal.Length + 1);
+            Tiles.AddRange(horizontal);
         }
-        else if (horizontal.Length >= 2)
+
+        if (vertical.Count >= 2)
         {
-            Tiles = new ITile[horizontal.Length + 1];
-
-            Tiles[0] = origin;
-
-            horizontal.CopyTo(Tiles, 1);
+            Tiles.AddRange(vertical);
         }
-        else if (vertical.Length >= 2)
+
+        // If there are not enough tiles to form a match, set Tiles to null
+        if (Tiles.Count <= 1)
         {
-            Tiles = new ITile[vertical.Length + 1];
-
-            Tiles[0] = origin;
-
-            vertical.CopyTo(Tiles, 1);
+            Tiles = null;
         }
-        else Tiles = null;
 
-        Score = Tiles?.Length ?? -1;
+        HorizontalCount = horizontal.Count >= 2 ? horizontal.Count + 1 : 0;
+        VerticalCount = vertical.Count >= 2 ? vertical.Count + 1 : 0;
+
+        AssignMatchType();
+        Score = Tiles?.Count ?? -1;
     }
+    public bool IsSpecial => IsLineFiveSpecial() || IsLineSpecial() || IsShapeSpecial();
+
+    private void AssignMatchType()
+    {
+        if (IsSpecial)
+            if (IsShapeSpecial())
+            {
+                MatchType = SpecialMatch.TShape;
+            }
+            else if (IsLineFiveSpecial())
+                MatchType = SpecialMatch.FiveColumn;
+            else
+            {
+                if (HorizontalCount == 4)
+                    MatchType = SpecialMatch.FourRow;
+                else
+                    MatchType = SpecialMatch.FourColumn;
+            }
+    }
+    private bool IsLineSpecial()
+    {
+        return HorizontalCount == 4 || VerticalCount == 4; // Line matches with 4 or more tiles
+    }
+    private bool IsLineFiveSpecial()
+    {
+        return HorizontalCount >= 5 || VerticalCount >= 5; // Line matches with 4 or more tiles
+    }
+    private bool IsShapeSpecial()
+    {
+        // Check if it's an L or T shape (requires connections in both directions)
+        return HorizontalCount >= 3 && VerticalCount >= 3;
+    }
+
+
+}
+//change enum later to custom shapes. the closest the shape is will return.
+public enum SpecialMatch
+{
+    FourRow,
+    FourColumn,
+    FiveRow,
+    FiveColumn,
+    LShape,
+    TShape
 }

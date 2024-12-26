@@ -16,7 +16,8 @@ public class GridManager : MonoBehaviour
     [SerializeField] private Transform _tilesHolder;
     [SerializeField] private TilePool _tilesPool;
     [SerializeField] private MatchHandler _matchHandler;
-    [SerializeField] private TileDataSO[] _tileDataSOs;
+    [SerializeField] private TileDataSO[] _tilesDataSOs;
+    [SerializeField] private SpecialTileDataSO[] _specialTilesDataSOs;
     [SerializeField] private TileDataSO _emptyTileDataSO;
     private Dictionary<Vector2Int,TileController> _tilesDictionary;
 
@@ -31,6 +32,16 @@ public class GridManager : MonoBehaviour
         _swipeInputHandler.OnSwipe.AddListener(HandleTileSwipe);
         _swipeInputHandler.OnTap.AddListener(DeselectDrag);
     }
+    private void OnDestroy()
+    {
+        _swipeInputHandler.OnSwipe.RemoveAllListeners();
+        _swipeInputHandler.OnTap.RemoveAllListeners();
+    }
+    private void OnApplicationQuit()
+    {
+        _swipeInputHandler.OnSwipe.RemoveAllListeners();
+        _swipeInputHandler.OnTap.RemoveAllListeners();
+    }
 
     private void InitializeGrid()
     {
@@ -42,12 +53,12 @@ public class GridManager : MonoBehaviour
                 var newTileObject = Instantiate(basicTilePrefab, new Vector3(x, y, _tilesHolder.position.z), Quaternion.identity, _tilesHolder);
                 newTileObject.name = $"Tile({x},{y})";
                 TileController tileComponent = newTileObject.GetComponent<TileController>();
-                TileDataSO tileData = _tileDataSOs[Random.Range(0, _tileDataSOs.Length)];
-                if(_tileDataSOs!=null && _tileDataSOs.Length>1)//prevents from the loop to go forever since 1 tiledata will always cause a match.
+                TileDataSO tileData = _tilesDataSOs[Random.Range(0, _tilesDataSOs.Length)];
+                if(_tilesDataSOs!=null && _tilesDataSOs.Length>1)//prevents from the loop to go forever since 1 tiledata will always cause a match.
                     do
                     {
                         // Randomly select a TileDataSO for this tile
-                        tileData = _tileDataSOs[Random.Range(0, _tileDataSOs.Length)];
+                        tileData = _tilesDataSOs[Random.Range(0, _tilesDataSOs.Length)];
                     }
                     while (WouldCauseMatch(x, y, tileData));
 
@@ -110,9 +121,12 @@ public class GridManager : MonoBehaviour
     }
     private void DeselectDrag()
     {
-        _firstSelectedTile.OnDeSelectedTile?.Invoke(false);
-        _firstSelectedTile.GetIcon().transform.transform.DOScale(Vector3.one, 0.1f);
-        _firstSelectedTile = null;
+        if (_firstSelectedTile != null)
+        {
+            _firstSelectedTile.OnDeSelectedTile?.Invoke(false);
+            _firstSelectedTile.GetIcon().transform.transform.DOScale(Vector3.one, 0.1f);
+            _firstSelectedTile = null;
+        }
     }
     private void OnTileDragged(TileController selectedTile)
     {
@@ -156,8 +170,8 @@ public class GridManager : MonoBehaviour
         tile1.ChangeIcon(tile2.GetIcon());
         tile2.ChangeIcon(tmpTileIcon);
         //change references of the tiles icon and data.
-        TileDataSO tmpTileDataSO = _tileDataSOs.FirstOrDefault(c=> c.TileType.Equals(tile1.GetModelTileType()));
-        tile1.Initialize(_tileDataSOs.FirstOrDefault(c => c.TileType.Equals(tile2.GetModelTileType())));
+        TileDataSO tmpTileDataSO = _specialTilesDataSOs.Cast<TileDataSO>().Concat(_tilesDataSOs).FirstOrDefault(c=> c.TileType.Equals(tile1.GetModelTileType()));
+        tile1.Initialize(_specialTilesDataSOs.Cast<TileDataSO>().Concat(_tilesDataSOs).FirstOrDefault(c => c.TileType.Equals(tile2.GetModelTileType())));
         tile2.Initialize(tmpTileDataSO);
         //visual back to deselect.
         tile1.GetIcon().transform.transform.DOScale(Vector3.one, 0.1f);
@@ -189,6 +203,7 @@ public class GridManager : MonoBehaviour
         }
 
         // Process matches until none are left
+        List<TileController> fellTiles = new List<TileController>();
         do
         {
             _isMatching = true;
@@ -198,14 +213,23 @@ public class GridManager : MonoBehaviour
             var poppedTiles = new HashSet<TileController>();
             foreach (Match match in matches)
             {
+                int countTilesInMatch = 0;
+                // Check if the match is special
                 foreach (TileController tile in match.Tiles)
                 {
-                    if (poppedTiles.Add(tile)) // Ensure each tile is processed only once
+                    if (countTilesInMatch == 0 && match.IsSpecial && (fellTiles.Find(c=>c==tile)!=null || tile == GetTileAt(pos1) || tile == GetTileAt(pos2)))
+                    {
+                        // Assign a special icon to one tile in the match
+                        AssignSpecialTile(tile,match);
+                        countTilesInMatch++;
+                    }
+                    else if (poppedTiles.Add(tile)) // Ensure each tile is processed only once
                     {
                         popTasks.Add(tile.AwaitPopIcon());
                     }
                 }
             }
+            fellTiles.Clear();
             //await Task.WhenAll(popTasks); // Wait for all pops to complete (optional)
             Debug.Log("Pop finished");
 
@@ -217,7 +241,7 @@ public class GridManager : MonoBehaviour
             }
 
             // Fill empty spaces
-            await FillEmptySpaces();
+            await FillEmptySpaces(fellTiles);
 
             // Detect new matches
             matches = _matchHandler.DetectMatches(_tilesDictionary, Width, Height);
@@ -227,12 +251,20 @@ public class GridManager : MonoBehaviour
 
         _isMatching = false; // Reset state
     }
-
-
-
-    public async Task FillEmptySpaces()
+    // Method to assign a special icon to a tile in a special match
+    private void AssignSpecialTile(TileController newSpecialTile, Match match)
     {
-        List<TileController> fellTiles = new List<TileController>();
+        Debug.Log($"Special tile created at {newSpecialTile.TileIndex} with icon {match.MatchType.ToString()}");
+        SpecialTileDataSO specialTileDataSO = _specialTilesDataSOs.FirstOrDefault(c => c.SpecialMatchType == match.MatchType);
+        if (specialTileDataSO == null)
+            Debug.Log(specialTileDataSO + " is null");//
+        newSpecialTile.Initialize(specialTileDataSO);
+    }
+
+    // Method to determine which special icon to use based on the match shape or size
+
+    public async Task FillEmptySpaces(List<TileController> fellTiles)
+    {
         Sequence sequence = DOTween.Sequence();
 
         for (int x = 0; x < Width; x++) // Process each column individually
@@ -296,7 +328,8 @@ public class GridManager : MonoBehaviour
 
         // Update tile references
         emptyTile.ChangeIcon(fallingTile.GetIcon());
-        emptyTile.Initialize(_tileDataSOs.FirstOrDefault(c => c.TileType.Equals(fallingTile.GetModelTileType())));
+        //join special and regular lists to fix falling when there is a special bug.
+        emptyTile.Initialize(_specialTilesDataSOs.Cast<TileDataSO>().Concat(_tilesDataSOs).FirstOrDefault(c => c.TileType.Equals(fallingTile.GetModelTileType())));
         fallingTile.Initialize(_emptyTileDataSO);
         fallingTile.ChangeIcon(null);
 
@@ -313,7 +346,7 @@ public class GridManager : MonoBehaviour
         pooledIcon.transform.position = new Vector3(emptyTile.transform.position.x, GetTileAt(0,0).transform.position.y + 1, emptyTile.transform.position.z); // Start above the grid
 
         // Select a random TileDataSO for the new tile
-        TileDataSO tileData = _tileDataSOs[Random.Range(0, _tileDataSOs.Length)];
+        TileDataSO tileData = _tilesDataSOs[Random.Range(0, _tilesDataSOs.Length)];
         
         // Animate the new tile falling into place
         Vector3 targetPosition = emptyTile.transform.position;
