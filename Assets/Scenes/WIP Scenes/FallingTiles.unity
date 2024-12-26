@@ -128,6 +128,27 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 7096195525766864672, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
   m_PrefabInstance: {fileID: 388907889}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &143347587 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7945697758459897716, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
+  m_PrefabInstance: {fileID: 5732612629943963025}
+  m_PrefabAsset: {fileID: 0}
+--- !u!111 &143347589
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 143347587}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 7400000, guid: 94ce0a7601536514bb670318fb349f7a, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: 94ce0a7601536514bb670318fb349f7a, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 1
+  m_AnimatePhysics: 0
+  m_CullingType: 0
 --- !u!1 &251056026
 GameObject:
   m_ObjectHideFlags: 0
@@ -765,6 +786,10 @@ PrefabInstance:
       propertyPath: _matchHandler
       value: 
       objectReference: {fileID: 834591016}
+    - target: {fileID: 5402005814933614478, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
+      propertyPath: m_ConstrainProportionsScale
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6476815885713913970, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
       propertyPath: m_Camera
       value: 
@@ -877,6 +902,10 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 7945697758459897716, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8520849461918674578, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -900,7 +929,10 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7945697758459897716, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 143347589}
   m_SourcePrefab: {fileID: 100100000, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
 --- !u!114 &5732612629943963027 stripped
 MonoBehaviour:
