@@ -187,6 +187,8 @@ public class GridManager : MonoBehaviour
 
     public async void OnTileSwap(Vector2Int pos1, Vector2Int pos2)
     {
+        TileController tile1 = GetTileAt(pos1);
+        TileController tile2 = GetTileAt(pos2);
         _isSwapping = true;
         await SwapTiles(pos1, pos2);
         _isSwapping = false;
@@ -217,7 +219,7 @@ public class GridManager : MonoBehaviour
                 // Check if the match is special
                 foreach (TileController tile in match.Tiles)
                 {
-                    if (countTilesInMatch == 0 && match.IsSpecial && (fellTiles.Find(c=>c==tile)!=null || tile == GetTileAt(pos1) || tile == GetTileAt(pos2)))
+                    if (countTilesInMatch == 0 && match.IsSpecial && (fellTiles.Find(c=>c==tile)!=null || tile == tile1 || tile == tile2))
                     {
                         // Assign a special icon to one tile in the match
                         AssignSpecialTile(tile,match);
@@ -257,8 +259,9 @@ public class GridManager : MonoBehaviour
         Debug.Log($"Special tile created at {newSpecialTile.TileIndex} with icon {match.MatchType.ToString()}");
         SpecialTileDataSO specialTileDataSO = _specialTilesDataSOs.FirstOrDefault(c => c.SpecialMatchType == match.MatchType);
         if (specialTileDataSO == null)
-            Debug.Log(specialTileDataSO + " is null");//
+            Debug.Log(specialTileDataSO + " is null");
         newSpecialTile.Initialize(specialTileDataSO);
+        newSpecialTile.AssignSpecialIcon();
     }
 
     // Method to determine which special icon to use based on the match shape or size
@@ -355,6 +358,7 @@ public class GridManager : MonoBehaviour
         // Update tile references
         emptyTile.ChangeIcon(pooledIcon as IconHandler);
         emptyTile.Initialize(tileData);
+        emptyTile.UnAssignSpecialIcon();
 
         fellTiles.Add(emptyTile);
     }

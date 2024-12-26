@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TileName: TShape
   TileType: TShape
-  TileIcon: {fileID: 2800000, guid: 4dfba11cab64a8f499e358df5e676d00, type: 3}
+  TileIcon: {fileID: 2800000, guid: ad3420c813d540b48b810ec370af8917, type: 3}
   IsRenderered: 1
   Color: {r: 1, g: 1, b: 1, a: 1}
   SpecialMatchType: 5

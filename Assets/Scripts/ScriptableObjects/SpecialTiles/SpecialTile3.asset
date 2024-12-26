@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TileName: 4Row
   TileType: 4Row
-  TileIcon: {fileID: 2800000, guid: 27b56819c24125246a82ef48d1851886, type: 3}
+  TileIcon: {fileID: 2800000, guid: a7f2cae9ea79ac54c9ca6566d513eea0, type: 3}
   IsRenderered: 1
   Color: {r: 1, g: 1, b: 1, a: 1}
   SpecialMatchType: 0

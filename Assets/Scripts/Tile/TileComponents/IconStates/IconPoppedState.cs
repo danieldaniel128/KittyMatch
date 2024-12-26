@@ -7,17 +7,21 @@ public class IconPoppedState : IconBaseState
 {
     RawImage _iconIdleImage;
     GameObject _popObjectVFX;
+    GameObject _specialPopObjectVFX;
     float _deactivateEffectTime;
     Color _breakingVFXColor;
 
     public event System.Action OnPopComplete;
     float _popDuration = 1.0f;
-    public IconPoppedState(RawImage iconIdleImage, GameObject popVFX, Color breakingVFXColor, float deactivateEffectTime =0.5f)
+    IconHandler _icon;
+    public IconPoppedState(IconHandler icon,RawImage iconIdleImage, GameObject popVFX,GameObject specialVFX, Color breakingVFXColor, float deactivateEffectTime =0.5f)
     {
         _iconIdleImage = iconIdleImage;
         _popObjectVFX = popVFX;
+        _specialPopObjectVFX = specialVFX;
         _breakingVFXColor = breakingVFXColor;
         _deactivateEffectTime = deactivateEffectTime;
+        _icon = icon;
     }
     public override void OnEnter()
     {
@@ -35,8 +39,9 @@ public class IconPoppedState : IconBaseState
             }
             main.startColor = _breakingVFXColor;
         }
-        _popObjectVFX.SetActive(true);
-
+            _popObjectVFX.SetActive(true);
+        if (_icon.IsSpecial)
+            _specialPopObjectVFX.SetActive(true);
         _iconIdleImage.gameObject.GetComponent<MonoBehaviour>().StartCoroutine(WaitForPopComplete());
     }
     public override void OnExit() 
@@ -44,6 +49,7 @@ public class IconPoppedState : IconBaseState
         _iconIdleImage.gameObject.SetActive(false);
         _iconIdleImage.enabled = true;
         _popObjectVFX.SetActive(false);
+        _specialPopObjectVFX.SetActive(false);
 
     }
     private IEnumerator WaitForPopComplete()
@@ -53,6 +59,7 @@ public class IconPoppedState : IconBaseState
         _iconIdleImage.gameObject.SetActive(false);
         _iconIdleImage.enabled = true;
         _popObjectVFX.SetActive(false);
+        _specialPopObjectVFX.SetActive(false);
     }
     public void SetNewPopColor(Color color)
     {
