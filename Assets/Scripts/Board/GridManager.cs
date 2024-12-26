@@ -306,6 +306,12 @@ public class GridManager : MonoBehaviour
             tile.Initialize(_emptyTileDataSO);
         }
     }
+
+
+    void PopABomb()
+    {
+
+    }
     private async Task GridUpdateAfterSwap(TileController tile1, TileController tile2, List<Match> matches)
     {
         List<TileController> fellTiles = new List<TileController>();
@@ -317,11 +323,48 @@ public class GridManager : MonoBehaviour
             // Check if the match is special
             foreach (TileController tile in match.Tiles)
             {
-                if (tile.GetModelTileType().Equals("4Column"))
-                {
-                    foreach (var tileincol in _tilesDictionary.Where(c => c.Key.x == tile.X))
-                        if (poppedTiles.Add(GetTileAt(tileincol.Key)))
+                if (fellTiles != null)
+                    if (tile.GetModelTileType().Equals("4Column"))
+                    {
+                        foreach (var tileincol in _tilesDictionary.Where(c => c.Key.x == tile.X))
+                            if (poppedTiles.Add(GetTileAt(tileincol.Key)))
                                 popTasks.Add(GetTileAt(tileincol.Key).AwaitPopIcon());
+                    }
+                if (tile.GetModelTileType().Equals("4Row"))
+                {
+                    foreach (var tileincol in _tilesDictionary.Where(c => c.Key.y == tile.Y))
+                        if (poppedTiles.Add(GetTileAt(tileincol.Key)))
+                            popTasks.Add(GetTileAt(tileincol.Key).AwaitPopIcon());
+                }
+                if (tile.GetModelTileType().Equals("TShape"))
+                {
+                    // Get the center tile's coordinates
+                    var center = tile.TileIndex;
+
+                    // Iterate through the 3x3 area around the center
+                    for (int x = center.x - 1; x <= center.x + 1; x++)
+                    {
+                        for (int y = center.y - 1; y <= center.y + 1; y++)
+                        {
+                            // Ensure the coordinates are within the grid bounds
+                            if (_tilesDictionary.TryGetValue(new Vector2Int(x, y), out var affectedTile))
+                            {
+                                // Trigger the pop for each tile in the 3x3 area
+                                if (poppedTiles.Add(affectedTile))
+                                    popTasks.Add(affectedTile.AwaitPopIcon());
+                            }
+                        }
+                    }
+                }
+
+                if (tile.GetModelTileType().Equals("AllColors"))
+                {
+                    if (poppedTiles.Add(tile))
+                        popTasks.Add(tile.AwaitPopIcon());
+                    TileController allColoredSpecialTile = _tilesDictionary.FirstOrDefault(c => !GetTileAt(c.Key).GetModelTileType().Equals("AllColors")).Value;
+                    foreach (var tileincol in _tilesDictionary.Where(c => c.Value.GetModelTileType().Equals(allColoredSpecialTile.GetModelTileType())))
+                        if (poppedTiles.Add(GetTileAt(tileincol.Key)))
+                            popTasks.Add(GetTileAt(tileincol.Key).AwaitPopIcon());
                 }
                 else if (match.IsSpecial && (tile == tile1 || tile == tile2))//is special and one of the swaps
                 {
