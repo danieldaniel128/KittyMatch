@@ -235,8 +235,50 @@ public class GridManager : MonoBehaviour
             // Check if the match is special
             foreach (TileController tile in match.Tiles)
             {
-                if(fellTiles != null)
-                    if ( match.IsSpecial && !processedMatches.Contains(match))//is special and one of the falling tiles is in the special match
+                if (fellTiles != null)
+                    if (tile.GetModelTileType().Equals("4Column"))
+                    { 
+                        foreach (var tileincol in _tilesDictionary.Where(c => c.Key.x == tile.X))
+                            if (poppedTiles.Add(GetTileAt(tileincol.Key)))
+                                popTasks.Add(GetTileAt(tileincol.Key).AwaitPopIcon());
+                    }
+                    if (tile.GetModelTileType().Equals("4Row"))
+                    {
+                        foreach (var tileincol in _tilesDictionary.Where(c => c.Key.y == tile.Y))
+                            if (poppedTiles.Add(GetTileAt(tileincol.Key)))
+                                popTasks.Add(GetTileAt(tileincol.Key).AwaitPopIcon());
+                    }
+                if (tile.GetModelTileType().Equals("TShape"))
+                {
+                    // Get the center tile's coordinates
+                    var center = tile.TileIndex;
+
+                    // Iterate through the 3x3 area around the center
+                    for (int x = center.x - 1; x <= center.x + 1; x++)
+                    {
+                        for (int y = center.y - 1; y <= center.y + 1; y++)
+                        {
+                            // Ensure the coordinates are within the grid bounds
+                            if (_tilesDictionary.TryGetValue(new Vector2Int(x, y), out var affectedTile))
+                            {
+                                // Trigger the pop for each tile in the 3x3 area
+                                if (poppedTiles.Add(affectedTile))
+                                    popTasks.Add(affectedTile.AwaitPopIcon());
+                            }
+                        }
+                    }
+                }
+
+                if (tile.GetModelTileType().Equals("AllColors"))
+                    {
+                    if (poppedTiles.Add(tile))
+                        popTasks.Add(tile.AwaitPopIcon());
+                    TileController allColoredSpecialTile = _tilesDictionary.FirstOrDefault(c => !GetTileAt(c.Key).GetModelTileType().Equals("AllColors")).Value;
+                        foreach (var tileincol in _tilesDictionary.Where(c => c.Value.GetModelTileType().Equals(allColoredSpecialTile.GetModelTileType())))
+                            if (poppedTiles.Add(GetTileAt(tileincol.Key)))
+                                popTasks.Add(GetTileAt(tileincol.Key).AwaitPopIcon());
+                    }
+                else if ( match.IsSpecial && !processedMatches.Contains(match))//is special and one of the falling tiles is in the special match
                     {
                         // Find the first tile from the falling tiles that is part of the current match
                         TileController firstFellTileInMatch = fellTiles.FirstOrDefault(c => match.Tiles.Contains(c));
@@ -275,7 +317,13 @@ public class GridManager : MonoBehaviour
             // Check if the match is special
             foreach (TileController tile in match.Tiles)
             {
-                if (match.IsSpecial && (tile == tile1 || tile == tile2))//is special and one of the swaps
+                if (tile.GetModelTileType().Equals("4Column"))
+                {
+                    foreach (var tileincol in _tilesDictionary.Where(c => c.Key.x == tile.X))
+                        if (poppedTiles.Add(GetTileAt(tileincol.Key)))
+                                popTasks.Add(GetTileAt(tileincol.Key).AwaitPopIcon());
+                }
+                else if (match.IsSpecial && (tile == tile1 || tile == tile2))//is special and one of the swaps
                 {
                     // Assign a special icon to one tile in the match
                     AssignSpecialTile(tile, match);
@@ -283,12 +331,6 @@ public class GridManager : MonoBehaviour
                 else if (poppedTiles.Add(tile)) // Ensure each tile is processed only once
                 {
                     popTasks.Add(tile.AwaitPopIcon());
-                if(tile.GetModelTileType().Equals("4Column"))
-                    if(poppedTiles.Add(tile)) // Ensure each tile is processed only once
-                    {
-                        foreach(var tileincol in _tilesDictionary.Where(c => c.Key.x == tile.X))
-                            popTasks.Add(GetTileAt(tileincol.Key).AwaitPopIcon());
-                    }
                 }
             }
         }
@@ -312,7 +354,8 @@ public class GridManager : MonoBehaviour
         if (specialTileDataSO == null)
             Debug.Log(specialTileDataSO + " is null");
         newSpecialTile.Initialize(specialTileDataSO);
-        newSpecialTile.AssignSpecialIcon();
+        if(match.MatchType == SpecialMatch.FourColumn || match.MatchType == SpecialMatch.FourRow)
+            newSpecialTile.AssignSpecialIcon();
     }
 
     // Method to determine which special icon to use based on the match shape or size
