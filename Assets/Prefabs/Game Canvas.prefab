@@ -162,11 +162,11 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 7096195525766864672}
+  m_Father: {fileID: 8443511805291625996}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 2127}
+  m_AnchoredPosition: {x: 0, y: -151.38916}
   m_SizeDelta: {x: 882, y: 119}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4289685880983562654
@@ -948,7 +948,6 @@ RectTransform:
   m_Children:
   - {fileID: 178582909073552603}
   - {fileID: 8610091995597306704}
-  - {fileID: 6439285794171273289}
   - {fileID: 8443511805291625996}
   - {fileID: 6814106683104497861}
   - {fileID: 5336673091275756067}
@@ -2144,6 +2143,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7096195525766864672}
     m_Modifications:
+    - target: {fileID: 2770347589711198954, guid: 645610f2bd1c7e84899625675547398f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2770347589711198954, guid: 645610f2bd1c7e84899625675547398f, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2770347589711198954, guid: 645610f2bd1c7e84899625675547398f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2770347589711198954, guid: 645610f2bd1c7e84899625675547398f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 3047282802888926603, guid: 645610f2bd1c7e84899625675547398f, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -2260,13 +2275,32 @@ PrefabInstance:
       propertyPath: m_Name
       value: Higher Panel
       objectReference: {fileID: 0}
+    - target: {fileID: 6260670072257983393, guid: 645610f2bd1c7e84899625675547398f, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6260670072257983393, guid: 645610f2bd1c7e84899625675547398f, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6260670072257983393, guid: 645610f2bd1c7e84899625675547398f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6260670072257983393, guid: 645610f2bd1c7e84899625675547398f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8107193795523900350, guid: 645610f2bd1c7e84899625675547398f, type: 3}
       propertyPath: m_Name
       value: Settings_Button
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 3047282802888926603, guid: 645610f2bd1c7e84899625675547398f, type: 3}
+      insertIndex: 0
+      addedObject: {fileID: 6439285794171273289}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 645610f2bd1c7e84899625675547398f, type: 3}
 --- !u!224 &8443511805291625996 stripped
