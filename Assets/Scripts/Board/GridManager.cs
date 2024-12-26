@@ -203,56 +203,92 @@ public class GridManager : MonoBehaviour
             _isSwapping = false;
             return; // Exit early as no match was found
         }
+        //there is a match.
+        _isMatching = true;
+        //update grid after first match.
+        GridUpdateAfterSwap(tile1, tile2, matches);
+        List<TileController> fellTiles = new List<TileController>();
+        fellTiles.Clear();
+        await FillEmptySpaces(fellTiles);
+        matches = _matchHandler.DetectMatches(_tilesDictionary, Width, Height);
 
         // Process matches until none are left
-        List<TileController> fellTiles = new List<TileController>();
         do
         {
-            _isMatching = true;
-
-            // Pop matched tiles
-            var popTasks = new List<Task>();
-            var poppedTiles = new HashSet<TileController>();
-            foreach (Match match in matches)
+            GridUpdateAfterFallingTiles(matches, fellTiles);
+            fellTiles.Clear();
+            await FillEmptySpaces(fellTiles);
+            matches = _matchHandler.DetectMatches(_tilesDictionary, Width, Height);
+        }
+        while (matches.Count > 0);
+        _isMatching = false;
+    }
+    private void GridUpdateAfterFallingTiles(List<Match> matches,List<TileController> fellTiles)
+    {
+        // Pop matched tiles
+        var popTasks = new List<Task>();
+        var poppedTiles = new HashSet<TileController>();
+        foreach (Match match in matches)
+        {
+            // Check if the match is special
+            foreach (TileController tile in match.Tiles)
             {
-                int countTilesInMatch = 0;
-                // Check if the match is special
-                foreach (TileController tile in match.Tiles)
-                {
-                    if (countTilesInMatch == 0 && match.IsSpecial && (fellTiles.Find(c=>c==tile)!=null || tile == tile1 || tile == tile2))
+                if(fellTiles != null)
+                    if (match.IsSpecial && fellTiles.FirstOrDefault(c=>c==tile)!=null)//is special and one of the falling tiles is in the special match
                     {
-                        // Assign a special icon to one tile in the match
-                        AssignSpecialTile(tile,match);
-                        countTilesInMatch++;
+                        // Assign a special icon to the fell tile icon in the match as the matching ancor.
+                        AssignSpecialTile(tile, match);
                     }
                     else if (poppedTiles.Add(tile)) // Ensure each tile is processed only once
                     {
                         popTasks.Add(tile.AwaitPopIcon());
                     }
+            }
+        }
+        //await Task.WhenAll(popTasks); // Wait for all pops to complete (optional)
+        Debug.Log("Pop finished");
+
+        // Clear icons for matched tiles (use the same poppedTiles set)
+        foreach (var tile in poppedTiles)
+        {
+            tile.ChangeIcon(null);
+            tile.Initialize(_emptyTileDataSO);
+        }
+    }
+    private void GridUpdateAfterSwap(TileController tile1, TileController tile2, List<Match> matches)
+    {
+        List<TileController> fellTiles = new List<TileController>();
+        // Pop matched tiles
+        var popTasks = new List<Task>();
+        var poppedTiles = new HashSet<TileController>();
+        foreach (Match match in matches)
+        {
+            // Check if the match is special
+            foreach (TileController tile in match.Tiles)
+            {
+                if (match.IsSpecial && (tile == tile1 || tile == tile2))//is special and one of the swaps
+                {
+                    // Assign a special icon to one tile in the match
+                    AssignSpecialTile(tile, match);
+                }
+                else if (poppedTiles.Add(tile)) // Ensure each tile is processed only once
+                {
+                    popTasks.Add(tile.AwaitPopIcon());
                 }
             }
-            fellTiles.Clear();
-            //await Task.WhenAll(popTasks); // Wait for all pops to complete (optional)
-            Debug.Log("Pop finished");
-
-            // Clear icons for matched tiles (use the same poppedTiles set)
-            foreach (var tile in poppedTiles)
-            {
-                tile.ChangeIcon(null);
-                tile.Initialize(_emptyTileDataSO);
-            }
-
-            // Fill empty spaces
-            await FillEmptySpaces(fellTiles);
-
-            // Detect new matches
-            matches = _matchHandler.DetectMatches(_tilesDictionary, Width, Height);
         }
-        while (matches.Count > 0);
+        fellTiles.Clear();
+        //await Task.WhenAll(popTasks); // Wait for all pops to complete (optional)
+        Debug.Log("Pop finished");
 
-
-        _isMatching = false; // Reset state
+        // Clear icons for matched tiles (use the same poppedTiles set)
+        foreach (var tile in poppedTiles)
+        {
+            tile.ChangeIcon(null);
+            tile.Initialize(_emptyTileDataSO);
+        }
     }
+
     // Method to assign a special icon to a tile in a special match
     private void AssignSpecialTile(TileController newSpecialTile, Match match)
     {
