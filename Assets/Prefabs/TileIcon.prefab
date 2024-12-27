@@ -335,8 +335,16 @@ PrefabInstance:
       value: 150
       objectReference: {fileID: 0}
     - target: {fileID: 4329921353233971935, guid: 8f0ebda0fe1b9e644b797b216928a39e, type: 3}
+      propertyPath: startDelay.scalar
+      value: 0.56
+      objectReference: {fileID: 0}
+    - target: {fileID: 4329921353233971935, guid: 8f0ebda0fe1b9e644b797b216928a39e, type: 3}
       propertyPath: InitialModule.startSpeed.scalar
       value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 4499289473068143572, guid: 8f0ebda0fe1b9e644b797b216928a39e, type: 3}
+      propertyPath: startDelay.scalar
+      value: 0.56
       objectReference: {fileID: 0}
     - target: {fileID: 4499289473068143572, guid: 8f0ebda0fe1b9e644b797b216928a39e, type: 3}
       propertyPath: InitialModule.startSpeed.scalar

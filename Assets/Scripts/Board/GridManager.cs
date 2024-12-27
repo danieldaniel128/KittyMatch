@@ -191,7 +191,6 @@ public class GridManager : MonoBehaviour
         _isSwapping = true;
         await SwapTiles(pos1, pos2);
         _isSwapping = false;
-        Debug.Log(_tilesDictionary);
         var matches = _matchHandler.DetectMatches(_tilesDictionary, Width,Height);
 
         // Swap back if no matches found

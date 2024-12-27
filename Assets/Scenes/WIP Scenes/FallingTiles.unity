@@ -690,15 +690,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: 40
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fdda135ac2fe48447b95b52bac5965e3, type: 2}
+  m_sharedMaterial: {fileID: 8891243763610553228, guid: fdda135ac2fe48447b95b52bac5965e3, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -861,7 +861,7 @@ PrefabInstance:
     - target: {fileID: 29291536347092531, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
       propertyPath: m_Sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 8deced2ce1c855d409f5deab113f4622, type: 3}
+      objectReference: {fileID: 21300000, guid: f2c85b9ca8988a8419c4c6a365a0c245, type: 3}
     - target: {fileID: 342620994408396104, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
       propertyPath: m_AnchorMax.y
       value: 1
