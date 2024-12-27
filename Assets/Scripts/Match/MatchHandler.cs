@@ -113,9 +113,6 @@ public class MatchHandler : MonoBehaviour
             case "TShape":
                 // code block
                 break;
-            case "AllColors":
-                // code block
-                break;
             case "4Row":
                 // code block
                 break;

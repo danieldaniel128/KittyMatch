@@ -192,22 +192,42 @@ public class GridManager : MonoBehaviour
         await SwapTiles(pos1, pos2);
         _isSwapping = false;
         var matches = _matchHandler.DetectMatches(_tilesDictionary, Width,Height);
-
+        bool isAllColor = false;
         // Swap back if no matches found
         if (matches.Count == 0)
         {
-            _isSwapping = true;
-            await SwapTiles(pos1, pos2);
-            _isSwapping = false;
-            return; // Exit early as no match was found
+            if (tile1.GetModelTileType().Equals("AllColors") || tile2.GetModelTileType().Equals("AllColors"))
+            {
+                if (tile1.GetModelTileType().Equals("AllColors"))
+                    await AllColorsPowerUpOnTile(tile1, tile2);
+                else
+                    await AllColorsPowerUpOnTile(tile2, tile1);
+                isAllColor = true;
+            }
+            else
+            {
+                _isSwapping = true;
+                await SwapTiles(pos1, pos2);
+                _isSwapping = false;
+                return; // Exit early as no match was found
+            }
         }
+        else
+            if (tile1.GetModelTileType().Equals("AllColors") || tile2.GetModelTileType().Equals("AllColors"))
+            {
+                if (tile1.GetModelTileType().Equals("AllColors"))
+                    await AllColorsPowerUpOnTile(tile1, tile2);
+                else
+                    await AllColorsPowerUpOnTile(tile2, tile1);
+                isAllColor = true;
+            }
         MoveManager.Instance.UseMove();
         //there is a match.
         _isMatching = true;
         //update grid after first match.
-        await GridUpdateAfterSwap(tile1, tile2, matches);
+        if(!isAllColor)
+            await GridUpdateAfterSwap(tile1, tile2, matches);
         List<TileController> fellTiles = new List<TileController>();
-        fellTiles.Clear();
         await FillEmptySpaces(fellTiles);
         matches = _matchHandler.DetectMatches(_tilesDictionary, Width, Height);
 
@@ -258,14 +278,6 @@ public class GridManager : MonoBehaviour
                                     }
                                 }
                             }
-                            break;
-                        case "AllColors":
-                            if (poppedTiles.Add(tile))
-                                popTasks.Add(tile.AwaitPopIcon());
-                            TileController allColoredSpecialTile = _tilesDictionary.FirstOrDefault(c => !GetTileAt(c.Key).GetModelTileType().Equals("AllColors")).Value;
-                            foreach (var tileincol in _tilesDictionary.Where(c => c.Value.GetModelTileType().Equals(allColoredSpecialTile.GetModelTileType())))
-                                if (poppedTiles.Add(GetTileAt(tileincol.Key)))
-                                    popTasks.Add(GetTileAt(tileincol.Key).AwaitPopIcon());
                             break;
                         case "4Row":
                             foreach (var tileincol in _tilesDictionary.Where(c => c.Key.y == tile.Y))
@@ -334,9 +346,26 @@ public class GridManager : MonoBehaviour
             }
         }
     }
+     async Task AllColorsPowerUpOnTile(TileController allColorTile,TileController swappedTile)
+     {
+        var popTasks = new List<Task>();
+        var poppedTiles = new HashSet<TileController>();
+        if (poppedTiles.Add(allColorTile))
+            popTasks.Add(allColorTile.AwaitPopIcon());
+        string  allColoredSpecialTileColor = swappedTile.GetModelTileType();
+        foreach (var tileincol in _tilesDictionary.Where(c => c.Value.GetModelTileType().Equals(allColoredSpecialTileColor)))
+            if (poppedTiles.Add(GetTileAt(tileincol.Key)))
+                popTasks.Add(GetTileAt(tileincol.Key).AwaitPopIcon());
+        await Task.WhenAll(popTasks);
+        // Clear icons for matched tiles (use the same poppedTiles set)
+        foreach (var tile in poppedTiles)
+        {
+            tile.ChangeIcon(null);
+            tile.Initialize(_emptyTileDataSO);
+        }
+    }
     private async Task GridUpdateAfterSwap(TileController tile1, TileController tile2, List<Match> matches)
     {
-        List<TileController> fellTiles = new List<TileController>();
         // Pop matched tiles
         var popTasks = new List<Task>();
         var poppedTiles = new HashSet<TileController>();
@@ -368,14 +397,6 @@ public class GridManager : MonoBehaviour
                             }
                         }
                         break;
-                    case "AllColors":
-                        if (poppedTiles.Add(tile))
-                            popTasks.Add(tile.AwaitPopIcon());
-                        TileController allColoredSpecialTile = _tilesDictionary.FirstOrDefault(c => !GetTileAt(c.Key).GetModelTileType().Equals("AllColors")).Value;
-                        foreach (var tileincol in _tilesDictionary.Where(c => c.Value.GetModelTileType().Equals(allColoredSpecialTile.GetModelTileType())))
-                            if (poppedTiles.Add(GetTileAt(tileincol.Key)))
-                                popTasks.Add(GetTileAt(tileincol.Key).AwaitPopIcon());
-                        break;
                     case "4Row":
                         foreach (var tileincol in _tilesDictionary.Where(c => c.Key.y == tile.Y))
                             if (poppedTiles.Add(GetTileAt(tileincol.Key)))
@@ -401,7 +422,6 @@ public class GridManager : MonoBehaviour
                 }
             }
         }
-        fellTiles.Clear();
         await Task.WhenAll(popTasks); // Wait for all pops to complete (optional)
         Debug.Log("Pop finished");
 
