@@ -1050,6 +1050,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -625
       objectReference: {fileID: 0}
+    - target: {fileID: 4061858675531832386, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 398a69c32458cc14b8f17c35bf653fcf, type: 3}
     - target: {fileID: 4222583693154293278, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
       propertyPath: m_Enabled
       value: 1
@@ -1092,7 +1096,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5384136819256395195, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
       propertyPath: _tilesDataSOs.Array.size
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5384136819256395195, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
       propertyPath: _tileDataSOs.Array.data[3]

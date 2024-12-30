@@ -26,6 +26,18 @@ public class GridManager : MonoBehaviour
 
     [SerializeField] bool _isSwapping;
     [SerializeField] bool _isMatching;
+    public PowerUp _hammerPowerUp;
+    public PowerUp _bombPowerUp;
+    public PowerUp _swapPowerUp;
+    public PowerUp _selectedPowerUp;
+
+    void Awake()
+    {
+        //add clean actions for cleaning memory leak.
+        _hammerPowerUp.effect = (tile) => Debug.Log($"Hammer effect applied on {tile}");//change to real effect later
+        _bombPowerUp.effect = (tile) => Debug.Log($"Bomb tiles effect applied on {tile}");
+        _swapPowerUp.effect = (tile) => Debug.Log($"swap 2 tiles effect applied on {tile}");
+    }
     private void Start()
     {
         InitializeGrid();
