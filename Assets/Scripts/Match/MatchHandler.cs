@@ -71,7 +71,7 @@ public class MatchHandler : MonoBehaviour
         for (var x = originIndex.x - 1; x >= 0; x--)
         {
             if (!tiles.TryGetValue(new Vector2Int(x, originIndex.y), out other)) break;//null
-            if (IsTileDataIsSpecial(other) || other.GetModelTileType().Equals(origin.GetModelTileType()))//is not special or not equal
+            if (!IsTileDataIsSpecial(other) && other.GetModelTileType().Equals(origin.GetModelTileType()))//is not special or not equal
                 horizontalConnections.Add(other);
             else break;
             //(there is no tile to left, or he is not the same type) is not special
@@ -81,7 +81,7 @@ public class MatchHandler : MonoBehaviour
         for (var x = originIndex.x + 1; x < int.MaxValue; x++) // Remove int.MaxValue limitation if unnecessary
         {
             if(!tiles.TryGetValue(new Vector2Int(x, originIndex.y), out other)) break;
-            if (IsTileDataIsSpecial(other) || other.GetModelTileType().Equals(origin.GetModelTileType()))
+            if (!IsTileDataIsSpecial(other) && other.GetModelTileType().Equals(origin.GetModelTileType()))
                 horizontalConnections.Add(other);
             else break;
         }
@@ -90,7 +90,7 @@ public class MatchHandler : MonoBehaviour
         for (var y = originIndex.y - 1; y >= 0; y--)
         {
             if (!tiles.TryGetValue(new Vector2Int(originIndex.x, y), out other)) break;
-            if (IsTileDataIsSpecial(other) || other.GetModelTileType().Equals(origin.GetModelTileType()))
+            if (!IsTileDataIsSpecial(other) && other.GetModelTileType().Equals(origin.GetModelTileType()))
                 verticalConnections.Add(other);
             else break;
         }
@@ -99,7 +99,7 @@ public class MatchHandler : MonoBehaviour
         for (var y = originIndex.y + 1; y < int.MaxValue; y++) // Remove int.MaxValue limitation if unnecessary
         {
             if (!tiles.TryGetValue(new Vector2Int(originIndex.x, y), out other)) break;
-            if (IsTileDataIsSpecial(other) || other.GetModelTileType().Equals(origin.GetModelTileType()))
+            if (!IsTileDataIsSpecial(other) && other.GetModelTileType().Equals(origin.GetModelTileType()))
                 verticalConnections.Add(other);
             else break;
         }
@@ -117,6 +117,9 @@ public class MatchHandler : MonoBehaviour
                 // code block
                 break;
             case "4Column":
+                // code block
+                break;
+            case "AllColors":
                 // code block
                 break;
             default://not special
