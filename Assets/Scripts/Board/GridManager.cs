@@ -346,24 +346,6 @@ public class GridManager : MonoBehaviour
             }
         }
     }
-     async Task AllColorsPowerUpOnTile(TileController allColorTile,TileController swappedTile)
-     {
-        var popTasks = new List<Task>();
-        var poppedTiles = new HashSet<TileController>();
-        if (poppedTiles.Add(allColorTile))
-            popTasks.Add(allColorTile.AwaitPopIcon());
-        string  allColoredSpecialTileColor = swappedTile.GetModelTileType();
-        foreach (var tileincol in _tilesDictionary.Where(c => c.Value.GetModelTileType().Equals(allColoredSpecialTileColor)))
-            if (poppedTiles.Add(GetTileAt(tileincol.Key)))
-                popTasks.Add(GetTileAt(tileincol.Key).AwaitPopIcon());
-        await Task.WhenAll(popTasks);
-        // Clear icons for matched tiles (use the same poppedTiles set)
-        foreach (var tile in poppedTiles)
-        {
-            tile.ChangeIcon(null);
-            tile.Initialize(_emptyTileDataSO);
-        }
-    }
     private async Task GridUpdateAfterSwap(TileController tile1, TileController tile2, List<Match> matches)
     {
         // Pop matched tiles
@@ -447,6 +429,24 @@ public class GridManager : MonoBehaviour
 
     // Method to determine which special icon to use based on the match shape or size
 
+     async Task AllColorsPowerUpOnTile(TileController allColorTile,TileController swappedTile)
+     {
+        var popTasks = new List<Task>();
+        var poppedTiles = new HashSet<TileController>();
+        if (poppedTiles.Add(allColorTile))
+            popTasks.Add(allColorTile.AwaitPopIcon());
+        string  allColoredSpecialTileColor = swappedTile.GetModelTileType();
+        foreach (var tileincol in _tilesDictionary.Where(c => c.Value.GetModelTileType().Equals(allColoredSpecialTileColor)))
+            if (poppedTiles.Add(GetTileAt(tileincol.Key)))
+                popTasks.Add(GetTileAt(tileincol.Key).AwaitPopIcon());
+        await Task.WhenAll(popTasks);
+        // Clear icons for matched tiles (use the same poppedTiles set)
+        foreach (var tile in poppedTiles)
+        {
+            tile.ChangeIcon(null);
+            tile.Initialize(_emptyTileDataSO);
+        }
+    }
     public async Task FillEmptySpaces(List<TileController> fellTiles)
     {
         Sequence sequence = DOTween.Sequence();
