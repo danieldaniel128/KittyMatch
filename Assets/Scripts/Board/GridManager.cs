@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine.UI;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 public class GridManager : MonoBehaviour
 {
@@ -29,7 +30,7 @@ public class GridManager : MonoBehaviour
     {
         InitializeGrid();
         _swipeInputHandler.OnSwipe.AddListener(HandleTileSwipe);
-        _swipeInputHandler.OnTap.AddListener(DeselectDrag);
+        _swipeInputHandler.OnTap.AddListener(OnTapTile);
     }
     private void OnDestroy()
     {
@@ -127,6 +128,50 @@ public class GridManager : MonoBehaviour
             _firstSelectedTile = null;
         }
     }
+    private async void OnTapTile()
+    {
+        TileController tappedTile = _firstSelectedTile;
+        Debug.Log("tapped tile at: " + tappedTile.TileIndex);
+        DeselectDrag();
+        if (tappedTile != null)
+        {
+            if (tappedTile.GetModelTileType().Equals("AllColors"))
+            {
+                await AllColorsPowerUpOnTile(tappedTile);
+            }
+            else if (tappedTile.GetModelTileType().Equals("4Row"))
+            {
+                await FullLinePowerUpOnTile(tappedTile, true);
+            }
+            else if (tappedTile.GetModelTileType().Equals("4Column"))
+            {
+                await FullLinePowerUpOnTile(tappedTile, false);
+            }
+            else if (tappedTile.GetModelTileType().Equals("TShape"))
+            {
+                await BombPowerUpOnTile(tappedTile);
+            }
+        }
+        MoveManager.Instance.UseMove();
+        _isMatching = true;
+        //update grid after first match.
+        List<TileController> fellTiles = new List<TileController>();
+        //if a specail popped, empty cells need to fill
+        await FillEmptySpaces(fellTiles);
+        var matches = _matchHandler.DetectMatches(_tilesDictionary, Width, Height);
+        matches = _matchHandler.DetectMatches(_tilesDictionary, Width, Height);
+
+        // Process matches until none are left
+        do
+        {
+            await GridUpdateAfterFallingTiles(matches, fellTiles);
+            fellTiles.Clear();
+            await FillEmptySpaces(fellTiles);
+            matches = _matchHandler.DetectMatches(_tilesDictionary, Width, Height);
+        }
+        while (matches.Count > 0);
+        _isMatching = false;
+    }
     private void OnTileDragged(TileController selectedTile)
     {
         //cant select while
@@ -192,7 +237,6 @@ public class GridManager : MonoBehaviour
         await SwapTiles(pos1, pos2);
         _isSwapping = false;
         var matches = _matchHandler.DetectMatches(_tilesDictionary, Width,Height);
-        bool isAllColor = false;
         // Swap back if no matches found
         if (tile1.GetModelTileType().Equals("AllColors") || tile2.GetModelTileType().Equals("AllColors"))
         {
@@ -200,7 +244,6 @@ public class GridManager : MonoBehaviour
                 await AllColorsPowerUpOnTile(tile1, tile2);
             else
                 await AllColorsPowerUpOnTile(tile2, tile1);
-            isAllColor = true;
         }
         else if (tile1.GetModelTileType().Equals("4Row") || tile2.GetModelTileType().Equals("4Row"))
         {
@@ -423,13 +466,40 @@ public class GridManager : MonoBehaviour
 
     // Method to determine which special icon to use based on the match shape or size
 
-     async Task AllColorsPowerUpOnTile(TileController allColorTile,TileController swappedTile)
+     async Task AllColorsPowerUpOnTile(TileController allColorTile,TileController swappedTile = null)
      {
         var popTasks = new List<Task>();
         var poppedTiles = new HashSet<TileController>();
         if (poppedTiles.Add(allColorTile))
             popTasks.Add(allColorTile.AwaitPopIcon());
-        string  allColoredSpecialTileColor = swappedTile.GetModelTileType();
+        string allColoredSpecialTileColor = string.Empty;
+        if (swappedTile != null)
+            allColoredSpecialTileColor = swappedTile.GetModelTileType();
+        else
+        {
+            var center = allColorTile.TileIndex;
+
+            // Define possible directions
+            Vector2Int[] directions = new Vector2Int[]
+            {
+                new Vector2Int(0, 1),  // Above
+                new Vector2Int(0, -1), // Below
+                new Vector2Int(-1, 0), // Left
+                new Vector2Int(1, 0)   // Right
+            };
+
+            // Select a random direction
+            var randomDirection = directions[Random.Range(0, directions.Length)];
+
+            // Calculate the target tile index
+            var targetTileIndex = center + randomDirection;
+
+            // Check if the target tile exists in the grid
+            if (_tilesDictionary.TryGetValue(targetTileIndex, out var affectedTile))
+            {
+                allColoredSpecialTileColor = affectedTile.GetModelTileType();
+            }
+        }
         foreach (var tileincol in _tilesDictionary.Where(c => c.Value.GetModelTileType().Equals(allColoredSpecialTileColor)))
             if (poppedTiles.Add(GetTileAt(tileincol.Key)))
                 popTasks.Add(GetTileAt(tileincol.Key).AwaitPopIcon());
