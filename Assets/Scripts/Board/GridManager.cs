@@ -66,13 +66,22 @@ public class GridManager : MonoBehaviour
                 newTileObject.name = $"Tile({x},{y})";
                 TileController tileComponent = newTileObject.GetComponent<TileController>();
                 TileDataSO tileData = _tilesDataSOs[Random.Range(0, _tilesDataSOs.Length)];
-                if(_tilesDataSOs!=null && _tilesDataSOs.Length>1)//prevents from the loop to go forever since 1 tiledata will always cause a match.
-                    do
+                int maxAttempts = 100; // Limit attempts to avoid infinite loop
+                int attempts = 0;
+
+                if (_tilesDataSOs != null && _tilesDataSOs.Length > 1)
+                {
+                    while (WouldCauseMatch(x, y, tileData) && attempts < maxAttempts)
                     {
-                        // Randomly select a TileDataSO for this tile
                         tileData = _tilesDataSOs[Random.Range(0, _tilesDataSOs.Length)];
+                        attempts++;
                     }
-                    while (WouldCauseMatch(x, y, tileData));
+                }
+                if (attempts >= maxAttempts)
+                {
+                    Debug.LogWarning($"Max attempts reached at position ({x}, {y}). Using fallback tile.");
+                    // Optionally assign a fallback tile or leave as is
+                }
 
                 // Initialize the tile with the properties from the selected TileDataSO
                 tileComponent.Initialize(tileData);
@@ -114,6 +123,8 @@ public class GridManager : MonoBehaviour
     public TileController GetTileAt(Vector2Int tileIndexSearch) => _tilesDictionary[tileIndexSearch];
     private void HandleTileSwipe(Vector2Int swipeDirection)
     {
+        if (_firstSelectedTile == null)
+            return;
         //Calculate positions of both tiles
         Vector2Int draggedTilePos = _firstSelectedTile.TileIndex;
         Vector2Int swapTargetPos = _firstSelectedTile.TileIndex + swipeDirection;
@@ -143,10 +154,10 @@ public class GridManager : MonoBehaviour
     private async void OnTapTile()
     {
         TileController tappedTile = _firstSelectedTile;
-        Debug.Log("tapped tile at: " + tappedTile.TileIndex);
         DeselectDrag();
         if (tappedTile != null)
         {
+            Debug.Log("tapped tile at: " + tappedTile.TileIndex);
             if (tappedTile.GetModelTileType().Equals("AllColors"))
             {
                 await AllColorsPowerUpOnTile(tappedTile);
@@ -163,25 +174,26 @@ public class GridManager : MonoBehaviour
             {
                 await BombPowerUpOnTile(tappedTile);
             }
+            else return;
         }
+        else return;
         MoveManager.Instance.UseMove();
         _isMatching = true;
         //update grid after first match.
         List<TileController> fellTiles = new List<TileController>();
         //if a specail popped, empty cells need to fill
         await FillEmptySpaces(fellTiles);
-        var matches = _matchHandler.DetectMatches(_tilesDictionary, Width, Height);
-        matches = _matchHandler.DetectMatches(_tilesDictionary, Width, Height);
+        List<Match> matches = _matchHandler.DetectMatches(_tilesDictionary, Width, Height); ;
 
         // Process matches until none are left
-        do
+        while (matches.Count > 0)
         {
+            //update grid from falling tiles.
             await GridUpdateAfterFallingTiles(matches, fellTiles);
             fellTiles.Clear();
             await FillEmptySpaces(fellTiles);
             matches = _matchHandler.DetectMatches(_tilesDictionary, Width, Height);
         }
-        while (matches.Count > 0);
         _isMatching = false;
     }
     private void OnTileDragged(TileController selectedTile)
@@ -302,20 +314,17 @@ public class GridManager : MonoBehaviour
         //update grid after first match.
         List<TileController> fellTiles = new List<TileController>();
         //if a specail popped, empty cells need to fill
-        await FillEmptySpaces(fellTiles);
         await GridUpdateAfterSwap(tile1, tile2, matches);
         await FillEmptySpaces(fellTiles);
         matches = _matchHandler.DetectMatches(_tilesDictionary, Width, Height);
-
         // Process matches until none are left
-        do
+        while (matches.Count > 0)
         {
             await GridUpdateAfterFallingTiles(matches, fellTiles);
             fellTiles.Clear();
             await FillEmptySpaces(fellTiles);
             matches = _matchHandler.DetectMatches(_tilesDictionary, Width, Height);
         }
-        while (matches.Count > 0);
         _isMatching = false;
     }
     private async Task GridUpdateAfterFallingTiles(List<Match> matches,List<TileController> fellTiles)
@@ -335,50 +344,23 @@ public class GridManager : MonoBehaviour
                     continue;
                 if (fellTiles != null)
                 {
-                    switch (tile.GetModelTileType())
+                    
+                    if (match.IsSpecial && !processedMatches.Contains(match))//is special and one of the falling tiles is in the special match
                     {
-                        case "TShape":
-                            // Get the center tile's coordinates
-                            var center = tile.TileIndex;
-                            // Iterate through the 3x3 area around the center
-                            for (int x = center.x - 1; x <= center.x + 1; x++)
-                            {
-                                for (int y = center.y - 1; y <= center.y + 1; y++)
-                                {
-                                    // Ensure the coordinates are within the grid bounds
-                                    if (_tilesDictionary.TryGetValue(new Vector2Int(x, y), out var affectedTile))
-                                    {
-                                        // Trigger the pop for each tile in the 3x3 area
-                                        if (poppedTiles.Add(affectedTile))
-                                            popTasks.Add(affectedTile.AwaitPopIcon());
-                                    }
-                                }
-                            }
-                            break;
-                        case "4Column":
-                            foreach (var tileincol in _tilesDictionary.Where(c => c.Key.x == tile.X))
-                                if (poppedTiles.Add(GetTileAt(tileincol.Key)))
-                                    popTasks.Add(GetTileAt(tileincol.Key).AwaitPopIcon());
-                            break;
-                        default://not special
-                            if (match.IsSpecial && !processedMatches.Contains(match))//is special and one of the falling tiles is in the special match
-                            {
-                                // Find the first tile from the falling tiles that is part of the current match
-                                TileController firstFellTileInMatch = fellTiles.FirstOrDefault(c => match.Tiles.Contains(c));
+                        // Find the first tile from the falling tiles that is part of the current match
+                        TileController firstFellTileInMatch = fellTiles.FirstOrDefault(c => match.Tiles.Contains(c));
 
-                                if (firstFellTileInMatch != null)
-                                {
-                                    // Assign a special icon to this tile and mark the match as processed
-                                    AssignSpecialTile(firstFellTileInMatch, match);
-                                    processedMatches.Add(match); // Ensure only one special tile per match
-                                    newlyCreatedSpecials.Add(firstFellTileInMatch);
-                                }
-                            }
-                            else if (poppedTiles.Add(tile)) // Ensure each tile is processed only once
-                            {
-                                popTasks.Add(tile.AwaitPopIcon());
-                            }
-                            break;
+                        if (firstFellTileInMatch != null)
+                        {
+                            // Assign a special icon to this tile and mark the match as processed
+                            AssignSpecialTile(firstFellTileInMatch, match);
+                            processedMatches.Add(match); // Ensure only one special tile per match
+                            newlyCreatedSpecials.Add(firstFellTileInMatch);
+                        }
+                    }
+                    else if (poppedTiles.Add(tile)) // Ensure each tile is processed only once
+                    {
+                        popTasks.Add(tile.AwaitPopIcon());
                     }
                 }
             }
@@ -387,7 +369,7 @@ public class GridManager : MonoBehaviour
         Debug.Log("Pop finished");
 
         // Clear icons for matched tiles (use the same poppedTiles set)
-        foreach (var tile in poppedTiles)
+        foreach (TileController tile in poppedTiles)
         {
             tile.ChangeIcon(null);
             tile.Initialize(_emptyTileDataSO);
@@ -573,6 +555,7 @@ public class GridManager : MonoBehaviour
     }
     public async Task FillEmptySpaces(List<TileController> fellTiles)
     {
+        fellTiles.Clear();
         Sequence sequence = DOTween.Sequence();
 
         for (int x = 0; x < Width; x++) // Process each column individually

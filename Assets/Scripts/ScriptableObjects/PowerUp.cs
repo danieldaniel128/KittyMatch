@@ -7,9 +7,9 @@ public class PowerUp : ScriptableObject
 {
     public string specialName;
     public Sprite icon;
-    public System.Action<TileController> effect;
+    public System.Action<TileController[]> effect;
 
-    public void ApplyEffect(TileController tile)
+    public void ApplyEffect(params TileController[] tile)
     {
         effect?.Invoke(tile);
     }
