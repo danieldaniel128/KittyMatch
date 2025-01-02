@@ -9,12 +9,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 026da32b447e16b449c4dacedd6bc5c1, type: 3}
-  m_Name: SpecialTile1
+  m_Script: {fileID: 11500000, guid: 7c6332eff2a65ee47a8975fa1911c32b, type: 3}
+  m_Name: BombPowerUp
   m_EditorClassIdentifier: 
-  TileName: TShape
-  TileType: TShape
-  TileIcon: {fileID: 2800000, guid: ad3420c813d540b48b810ec370af8917, type: 3}
-  IsRenderered: 1
-  Color: {r: 1, g: 1, b: 1, a: 1}
-  SpecialMatchType: 5
+  specialName: Bomb
+  icon: {fileID: 21300000, guid: ad3420c813d540b48b810ec370af8917, type: 3}

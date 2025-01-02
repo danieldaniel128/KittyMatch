@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Unity.IO.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -23,10 +22,12 @@ public class IconHandler : PooledObject
     [SerializeField] private Material _selectedMaterial;
     [Header("Popped Parameters")]
     [SerializeField] GameObject _popVFX;
+    [SerializeField] GameObject _specailPopVFX;
     [SerializeField] float _deactivatebreakEffectTime;
     public Color BreakingVFXColor;
 
     private TaskCompletionSource<bool> _popTaskCompletionSource;
+    public bool IsSpecial;
     private void Awake()
     {
         _stateMachine = new StateMachine();
@@ -35,7 +36,7 @@ public class IconHandler : PooledObject
         {
             { typeof(IconIdleState), new IconIdleState(_idleIconImage) },
             { typeof(IconSelectedState), new IconSelectedState(_selectedIconImage,_selectedMaterial) },
-            { typeof(IconPoppedState), new IconPoppedState(_idleIconImage,_popVFX,BreakingVFXColor,_deactivatebreakEffectTime) }
+            { typeof(IconPoppedState), new IconPoppedState(this, _idleIconImage,_popVFX,_specailPopVFX,BreakingVFXColor,_deactivatebreakEffectTime) }
         };
 
         At(GetState<IconIdleState>(), GetState<IconSelectedState>(), new FuncPredicate(() => IsSelected));
@@ -56,11 +57,20 @@ public class IconHandler : PooledObject
     void Any(IState to, IPredicate condition) => _stateMachine.AddAnyTransition(to, condition);
     public override void ResetPooledObject()
     {
+        _idleIconImage.gameObject.SetActive(true);
         IsSelected = false;
         IsPopping = false;
         _stateMachine.SetState(GetState<IconIdleState>());
     }
-
+    
+    public void RotateSpecialToColumn()
+    {
+        _specailPopVFX.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+    }
+    public void RotateSpecialToRow()
+    {
+        _specailPopVFX.transform.rotation = Quaternion.Euler(0f, 0f, 90f);
+    }
     private T GetState<T>() where T : IState
     {
         return (T)_iconStates[typeof(T)];

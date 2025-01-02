@@ -58,6 +58,20 @@ public class TileController : MonoBehaviour, ITile, IPointerDownHandler
             await _tileView.Icon.AwaitPop();
         }
     }
+    public void AssignSpecialIcon()
+    {
+        _tileView.Icon.IsSpecial = true;
+        if(_tileDataSO is SpecialTileDataSO)
+            if((_tileDataSO as SpecialTileDataSO).SpecialMatchType == SpecialMatch.FourRow)
+                _tileView.Icon.RotateSpecialToRow();
+            else if((_tileDataSO as SpecialTileDataSO).SpecialMatchType == SpecialMatch.FourColumn)
+                _tileView.Icon.RotateSpecialToColumn();
+
+    }
+    public void UnAssignSpecialIcon()
+    {
+        _tileView.Icon.IsSpecial = false;
+    }
     void ToggleSelection(bool isSelected)
     {
         _tileModel?.ToggleSelection(isSelected);
