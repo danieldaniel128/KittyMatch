@@ -1087,9 +1087,21 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5384136819256395195, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
+      propertyPath: _bombPowerUp
+      value: 
+      objectReference: {fileID: 11400000, guid: 46e406ffbf779ce4f997398b6e7b9d19, type: 2}
+    - target: {fileID: 5384136819256395195, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
+      propertyPath: _swapPowerUp
+      value: 
+      objectReference: {fileID: 11400000, guid: 49ad2151adf16034ea75631f2e8e6c53, type: 2}
+    - target: {fileID: 5384136819256395195, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
       propertyPath: _matchHandler
       value: 
       objectReference: {fileID: 834591016}
+    - target: {fileID: 5384136819256395195, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
+      propertyPath: _hammerPowerUp
+      value: 
+      objectReference: {fileID: 11400000, guid: 9a95cd16f2d676046beae90eaef07890, type: 2}
     - target: {fileID: 5384136819256395195, guid: 9e465adf63da95346b83bb68dd8a506a, type: 3}
       propertyPath: _tileDataSOs.Array.size
       value: 5
