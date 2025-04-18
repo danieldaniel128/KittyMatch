@@ -53,9 +53,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fc90de75b3509de4cb1ad895ed67b3b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _pooledObject: {fileID: 2800372595463672406}
-  _tileDataSO: {fileID: 0}
   _tileView: {fileID: 3329256890272749905}
+  _tileDataSO: {fileID: 0}
   _tileIndex: {x: 0, y: 0}
   OnTrySelectingTile:
     m_PersistentCalls:
@@ -90,8 +89,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38b3696f8187c3b40ae7ae3875c760f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tileIconHolder: {fileID: 2630040991345682855}
-  _currentIcon: {fileID: 2800372595463672406}
+  _iconHolder: {fileID: 2630040991345682855}
+  _icon: {fileID: 2800372595463672406}
 --- !u!222 &8928108367933116141
 CanvasRenderer:
   m_ObjectHideFlags: 0

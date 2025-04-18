@@ -8,7 +8,6 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
-    [SerializeField] private GridManager _gridManager;
     public void WinEvent()
     {
         //win logic

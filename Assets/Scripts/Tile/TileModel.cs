@@ -12,21 +12,23 @@ namespace Assets.Scripts.Tile
     {
         public TileDataSO TileData { get; private set; }
         public bool IsSelected { get; private set; }
+
         public TileModel(TileDataSO tileDataSO)
         {
             TileData = tileDataSO;
             IsSelected = false;
         }
-        public bool ToggleSelection(bool isSelected)
+
+        public void ToggleSelection(bool selected)
         {
-            IsSelected = isSelected;
-            return IsSelected;
+            IsSelected = selected;
         }
+
         public void Reset()
         {
             IsSelected = false;
-            // Additional reset logic if needed
         }
+
         public string GetTileType()
         {
             return TileData.TileType;

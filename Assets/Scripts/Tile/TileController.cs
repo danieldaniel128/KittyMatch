@@ -6,50 +6,56 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 public class TileController : MonoBehaviour, ITile, IPointerDownHandler
 {
-    [SerializeField] private PooledObject _pooledObject;
+    [SerializeField] private TileView _tileView;
     [SerializeField] private TileDataSO _tileDataSO;
-    [SerializeField] protected TileView _tileView;
-    [SerializeField] private Vector2Int _tileIndex;//hide it later or making it readonly from inspector
-    protected TileModel _tileModel;
-    public int X { get; private set; }
-    public int Y { get; private set; }
-    public Vector2Int TileIndex { get => _tileIndex; private set { _tileIndex = value; X = _tileIndex.x; Y = _tileIndex.y; } }
+    [SerializeField] private Vector2Int _tileIndex;
+
+    private TileModel _tileModel;
+    private TilePool _pool;
+    private PooledObject _pooledObject;
+
     public UnityEvent<TileController> OnTrySelectingTile;
     public UnityEvent<bool> OnSelectedTile;
     public UnityEvent<bool> OnDeSelectedTile;
+
+    public Vector2Int TileIndex => _tileIndex;
+    public int X => _tileIndex.x;
+    public int Y => _tileIndex.y;
     public bool IsSelected => _tileModel.IsSelected;
-    public PooledObject PooledObject => _pooledObject;
-    private TilePool _pool;
+    public TileView TileView => _tileView;
+
     private void Start()
     {
         OnSelectedTile.AddListener(ToggleSelection);
         OnDeSelectedTile.AddListener(ToggleSelection);
     }
+
     private void OnDestroy()
     {
-        OnTrySelectingTile.RemoveAllListeners();
         OnSelectedTile.RemoveAllListeners();
         OnDeSelectedTile.RemoveAllListeners();
-    }
-    private void OnApplicationQuit()
-    {
         OnTrySelectingTile.RemoveAllListeners();
-        OnSelectedTile.RemoveAllListeners();
-        OnDeSelectedTile.RemoveAllListeners();
     }
-    public void Initialize(TileDataSO tileDataSO)
+
+    public void Initialize(TileDataSO dataSO)
     {
-        _tileDataSO = tileDataSO;
-        _tileModel = new TileModel(tileDataSO);
-        // Initializing the view based on model's data
-        _tileView.SetNewTileIcon(_tileModel.TileData.TileIcon, _tileModel.TileData.Color);
+        _tileDataSO = dataSO;
+        _tileModel = new TileModel(_tileDataSO);
+        _tileView.SetNewTileIcon(_tileDataSO.TileIcon, _tileDataSO.Color);
     }
-    public void AttachPool(TilePool tilePool)
+
+    public void SetTileIndex(int x, int y)
     {
-        _pool = tilePool;
-        PooledObject.AttachPool(_pool);
+        _tileIndex = new Vector2Int(x, y);
     }
-    
+
+    public void SetTileIndex(Vector2Int index)
+    {
+        _tileIndex = index;
+    }
+
+    public string GetModelTileType() => _tileModel.GetTileType();
+
     public async Task AwaitPopIcon()
     {
         if (_tileView.Icon != null)
@@ -58,63 +64,50 @@ public class TileController : MonoBehaviour, ITile, IPointerDownHandler
             await _tileView.Icon.AwaitPop();
         }
     }
+
+    public void AttachPool(TilePool pool)
+    {
+        _pool = pool;
+    }
+
+    public void ChangeIcon(IconHandler icon)
+    {
+        _tileView.ChangeIcon(icon);
+        _pooledObject = icon?.GetComponent<PooledObject>();
+    }
+
+    public void ConnectIconToParent() => _tileView.ConnectIconToParent();
+
     public void AssignSpecialIcon()
     {
         _tileView.Icon.IsSpecial = true;
-        if(_tileDataSO is SpecialTileDataSO)
-            if((_tileDataSO as SpecialTileDataSO).SpecialMatchType == SpecialMatch.FourRow)
+        if (_tileDataSO is SpecialTileDataSO special)
+        {
+            if (special.SpecialMatchType == SpecialMatch.FourRow)
                 _tileView.Icon.RotateSpecialToRow();
-            else if((_tileDataSO as SpecialTileDataSO).SpecialMatchType == SpecialMatch.FourColumn)
+            else if (special.SpecialMatchType == SpecialMatch.FourColumn)
                 _tileView.Icon.RotateSpecialToColumn();
-
-    }
-    public void UnAssignSpecialIcon()
-    {
-        _tileView.Icon.IsSpecial = false;
-    }
-    void ToggleSelection(bool isSelected)
-    {
-        _tileModel?.ToggleSelection(isSelected);
-        _tileView.IsSelected = _tileModel.IsSelected;
+        }
     }
 
-    public string GetModelTileType()
-    {
-       return _tileModel.GetTileType();
-    }
-    
-    public void SetTileIndex(int x, int y)
-    {
-        TileIndex = new Vector2Int(x,y);
-    }
-    public void SetTileIndex(Vector2Int newTileIndex)
-    {
-        TileIndex = newTileIndex;
-    }
-    public IconHandler GetIcon()
-    {
-        return _tileView.Icon;
-    }
-    public void ConnectIconToParent()
-    {
-        _tileView.ConnectIconToParent();
-    }
-    public void ChangeIcon(IconHandler newIcon)
-    {
-        _tileView.ChangeIcon(newIcon);
-        if(newIcon!=null)
-            _pooledObject = newIcon.GetComponent<PooledObject>();
-    }
+    public void UnAssignSpecialIcon() => _tileView.Icon.IsSpecial = false;
+
     public void ReleaseToPool()
     {
-        _pool.ReturnToPool(_pooledObject);
+        _pool?.ReturnToPool(_pooledObject);
         _pooledObject = null;
     }
 
+    void ToggleSelection(bool selected)
+    {
+        _tileModel.ToggleSelection(selected);
+        _tileView.IsSelected = selected;
+    }
 
     public void OnPointerDown(PointerEventData eventData)
     {
         OnTrySelectingTile?.Invoke(this);
+        Debug.Log("selected tile");//
     }
 }
 public interface ITile
