@@ -63,6 +63,7 @@ public class GenericObjectPool<T> : MonoBehaviour where T : MonoBehaviour
     {
         pooledObject.transform.SetParent(transform);
         pooledObject.gameObject.SetActive(false);
-        objectsToPool.Add(pooledObject);
+        if (!objectsToPool.Contains(pooledObject))//safeguard for returning to pool twice.
+            objectsToPool.Add(pooledObject);
     }
 }
