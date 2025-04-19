@@ -9,5 +9,9 @@ public class TileDataSO : ScriptableObject
     public bool IsRenderered;
     public Color Color;
     // Additional properties for special effects or scoring could be added here
+
+
 }
+
+
 

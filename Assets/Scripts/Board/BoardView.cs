@@ -33,10 +33,7 @@ public class BoardView
                     Debug.LogWarning($"No valid tile types at {index}, falling back to full set.");
                     validTypes = new List<TileDataSO>(_tileTypes);
                 }
-
                 TileDataSO chosen = validTypes[Random.Range(0, validTypes.Count)];
-                
-
                 TileController tile = CreateTile(index, chosen);
                 boardModel.SetTile(index, tile);
                 tile.OnTrySelectingTile.AddListener(onSelectCallback);

@@ -46,27 +46,60 @@ public class TileSwapper
         var iconA = tileA.TileView.Icon;
         var iconB = tileB.TileView.Icon;
 
-        tileA.TileView.Icon.transform.SetParent(_overlapParent);
-        tileB.TileView.Icon.transform.SetParent(_overlapParent);
+        await AnimateSwapAsync(iconA.transform, iconB.transform, tileA.transform.position, tileB.transform.position);
 
-        Vector3 posA = tileA.transform.position;
-        Vector3 posB = tileB.transform.position;
+        ApplySwap(tileA, tileB, iconA, iconB);
+
+        var matches = new MatchFinder(_tiles).FindMatches();
+        if (matches.Count == 0)
+        {
+            await AnimateSwapAsync(iconA.transform, iconB.transform, tileB.transform.position, tileA.transform.position);
+            UndoSwap(tileA, tileB, iconA, iconB);
+        }
+    }
+    private async Task AnimateSwapAsync(Transform iconA, Transform iconB, Vector3 toA, Vector3 toB)
+    {
+        iconA.SetParent(_overlapParent);
+        iconB.SetParent(_overlapParent);
 
         Sequence seq = DOTween.Sequence();
-        seq.Join(iconA.transform.DOMove(posB, 0.3f));
-        seq.Join(iconB.transform.DOMove(posA, 0.3f));
+        seq.Join(iconA.DOMove(toB, 0.3f));
+        seq.Join(iconB.DOMove(toA, 0.3f));
         await seq.Play().AsyncWaitForCompletion();
-
+    }
+    private void ApplySwap(TileController tileA, TileController tileB, IconHandler iconA, IconHandler iconB)
+    {
         tileA.ChangeIcon(iconB);
         tileB.ChangeIcon(iconA);
 
         var dataA = tileA.GetModelTileType();
         var dataB = tileB.GetModelTileType();
 
-        tileA.Initialize(_specialTileTypes.Cast<TileDataSO>().Concat(_tileTypes).FirstOrDefault(d => d.TileType == dataB));
-        tileB.Initialize(_specialTileTypes.Cast<TileDataSO>().Concat(_tileTypes).FirstOrDefault(d => d.TileType == dataA));
+        tileA.Initialize(GetTileData(dataB));
+        tileB.Initialize(GetTileData(dataA));
 
         tileA.ConnectIconToParent();
         tileB.ConnectIconToParent();
     }
+    private void UndoSwap(TileController tileA, TileController tileB, IconHandler iconA, IconHandler iconB)
+    {
+        tileA.ChangeIcon(iconA);
+        tileB.ChangeIcon(iconB);
+
+        var dataA = tileA.GetModelTileType();
+        var dataB = tileB.GetModelTileType();
+
+        tileA.Initialize(GetTileData(dataA));
+        tileB.Initialize(GetTileData(dataB));
+
+        tileA.ConnectIconToParent();
+        tileB.ConnectIconToParent();
+    }
+    private TileDataSO GetTileData(string type)
+    {
+        return _specialTileTypes.Cast<TileDataSO>()
+            .Concat(_tileTypes)
+            .FirstOrDefault(d => d.TileType == type);
+    }
+
 }
